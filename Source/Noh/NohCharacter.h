@@ -339,7 +339,7 @@ private:
 	void CalculateMovementDirection(float directionmin, float directionmax, float buffer);		//Called in Tick to get movementdirection of character
 
 	//---Character Turn In Place---//
-	void TurnInPlace_Responsive(float aimyawlimit, UAnimMontage* turnleftanim, UAnimMontage* turnrightanim, float playrate);	//Called every tick when character is in looking direction and aiming
+	void TurnInPlace_Responsive(float aimyawlimit, UAnimMontage*& turnleftanim, UAnimMontage*& turnrightanim, float playrate);	//Called when character is turning in place and aiming
 	void TurnInPlace_Delay(float maxcamspeed, float aimyawlimit1, float delaytime1, float playrate1, UAnimMontage* turn_L_anim1, UAnimMontage* turn_R_anim1, float aimyawlimit2, float delaytime2, float playrate2, UAnimMontage* turn_L_anim2, UAnimMontage* turn_R_anim2);	//Called every tick when character is in looking direction and not aiming
 
 	//---Character Animation Blendspace Start Position---//

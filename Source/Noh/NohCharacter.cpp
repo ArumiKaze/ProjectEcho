@@ -20,8 +20,6 @@
 #include "Greatsword.h"
 #include "NohHUD.h"
 
-//TEST COMMIT
-
 //Default constructor//
 ANohCharacter::ANohCharacter()
 {
@@ -1379,90 +1377,65 @@ void ANohCharacter::CalculateMovementDirection(float directionmin, float directi
 }
 
 //---Character Turn In Place---//
-void ANohCharacter::TurnInPlace_Responsive(float aimyawlimit, UAnimMontage* turnleftanim, UAnimMontage* turnrightanim, float playrate)	//Plays animation montage for responsive turning in place
+//Plays animation montage for responsive turning in place
+void ANohCharacter::TurnInPlace_Responsive(float aimyawlimit, UAnimMontage*& turnleftanim, UAnimMontage*& turnrightanim, float playrate)
 {
-	UAnimMontage* turnanim;
-	if (aimyawdelta > 0.0f)
-	{
-		turnanim = turnrightanim;
-	}
-	else
-	{
-		turnanim = turnleftanim;
-	}
+	UAnimMontage* turnanim{ aimyawdelta > 0.0f ? turnrightanim : turnleftanim };
 
-	playrate = playrate * UKismetMathLibrary::MapRangeClamped(abs(aimyawrate), 120.0f, 400.0f, 1.0f, 2.0f);	//Increases play rate if camera is turning fast
+	//Increases play rate if camera is turning fast
+	playrate *= UKismetMathLibrary::MapRangeClamped(abs(aimyawrate), 120.0f, 400.0f, 1.0f, 2.0f);
 
+	//b_shouldturninplace becomes true as soon as aimyawdelta becomes greater than aimyawlimit
 	b_shouldturninplace = abs(aimyawdelta) > aimyawlimit;
 	if (b_shouldturninplace)
 	{
+		//If character is already turning in place, it interrupts and retriggers an animation if turning in the opposite direction
 		if (b_turninginplace)
 		{
-			if (b_turningright)	//If character is already turning in place, it interrupts and retriggers an animation if turning in the opposite direction
+			if ((b_turningright && !(aimyawdelta > 0.0f)) || (!b_turningright && (aimyawdelta > 0.0f)))
 			{
-				if (!(aimyawdelta > 0.0f))
+				if (!GetMesh()->GetAnimInstance()->Montage_IsPlaying(turnanim))
 				{
-
-					GetMesh()->GetAnimInstance()->Montage_Play(turnanim, playrate, EMontagePlayReturnType::MontageLength, 0.0f, true);
-				}
-			}
-			else
-			{
-				if (aimyawdelta > 0.0f)
-				{
-
 					GetMesh()->GetAnimInstance()->Montage_Play(turnanim, playrate, EMontagePlayReturnType::MontageLength, 0.0f, true);
 				}
 			}
 		}
 		else
 		{
-			GetMesh()->GetAnimInstance()->Montage_Play(turnanim, playrate, EMontagePlayReturnType::MontageLength, 0.0f, true);
+			if (!GetMesh()->GetAnimInstance()->Montage_IsPlaying(turnanim))
+			{
+				GetMesh()->GetAnimInstance()->Montage_Play(turnanim, playrate, EMontagePlayReturnType::MontageLength, 0.0f, true);
+			}
 		}
 	}
 }
-void ANohCharacter::TurnInPlace_Delay(float maxcamspeed, float aimyawlimit1, float delaytime1, float playrate1, UAnimMontage* turn_L_anim1, UAnimMontage* turn_R_anim1, float aimyawlimit2, float delaytime2, float playrate2, UAnimMontage* turn_L_anim2, UAnimMontage* turn_R_anim2)	//Plays animation montage for delayed turning in place
+//Plays animation montage for delayed turning in place
+void ANohCharacter::TurnInPlace_Delay(float maxcamspeed, float aimyawlimit1, float delaytime1, float playrate1, UAnimMontage* turn_L_anim1, UAnimMontage* turn_R_anim1, float aimyawlimit2, float delaytime2, float playrate2, UAnimMontage* turn_L_anim2, UAnimMontage* turn_R_anim2)
 {
-	if ((abs(aimyawrate) < maxcamspeed) && (abs(aimyawdelta) > aimyawlimit1))	//this allows the camera to rotate around the character without triggering a turn is moving faster than a certain rate
+	//This allows the camera to rotate around the character without triggering a turn that is moving faster than a certain rate
+	if ((abs(aimyawrate) < maxcamspeed) && (abs(aimyawdelta) > aimyawlimit1))
 	{
-		turninplacedelaycount = turninplacedelaycount + GetWorld()->GetDeltaSeconds();	//increase counter until it passes delay time limit which is scaled between the two aim yaw limits
+		//Increase counter until it passes delay time limit which is scaled between the two aim yaw limits
+		turninplacedelaycount += GetWorld()->GetDeltaSeconds();
 		b_shouldturninplace = turninplacedelaycount > UKismetMathLibrary::MapRangeClamped(abs(aimyawdelta), aimyawlimit1, aimyawlimit2, delaytime1, delaytime2);
 		if (b_shouldturninplace)
 		{
+			//Find out which montage to use
 			UAnimMontage* montage;
-			if (abs(aimyawdelta) >= aimyawlimit2)	//Find out which montage to use
+			if (abs(aimyawdelta) >= aimyawlimit2)
 			{
-				if (aimyawdelta > 0.0f)
-				{
-					montage = turn_R_anim2;
-				}
-				else
-				{
-					montage = turn_L_anim2;
-				}
+				montage = aimyawdelta > 0.0f ? turn_R_anim2 : turn_L_anim2;
 			}
 			else
 			{
-				if (aimyawdelta > 0.0f)
-				{
-					montage = turn_R_anim1;
-				}
-				else
-				{
-					montage = turn_L_anim1;
-				}
+				montage = aimyawdelta > 0.0f ? turn_R_anim1 : turn_L_anim1;
 			}
 
-			float playrate;
-			if (abs(aimyawdelta) >= aimyawlimit2)	//Find out play rate
+			if (!GetMesh()->GetAnimInstance()->Montage_IsPlaying(montage))
 			{
-				playrate = playrate2;
+				float playrate{ abs(aimyawdelta) >= aimyawlimit2 ? playrate2 : playrate1  };
+				GetMesh()->GetAnimInstance()->Montage_Play(montage, playrate, EMontagePlayReturnType::MontageLength, 0.0f, true);
 			}
-			else
-			{
-				playrate = playrate1;
-			}
-			GetMesh()->GetAnimInstance()->Montage_Play(montage, playrate, EMontagePlayReturnType::MontageLength, 0.0f, true);	//trigger Turn In Place montage
 		}
 	}
 	else
