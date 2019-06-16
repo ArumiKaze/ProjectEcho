@@ -16,9 +16,8 @@
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 #include "Runtime/Engine/Classes/Components/AudioComponent.h"
 #include "AnimNotifyState_Pivot.h"
-#include "Sword.h"
-#include "Greatsword.h"
 #include "NohHUD.h"
+#include "Katana.h"
 
 //Default constructor//
 ANohCharacter::ANohCharacter()
@@ -403,9 +402,15 @@ void ANohCharacter::BeginPlay()
 	{
 		Crouch();
 	}
+
+	//Spawn katana on character
+	AKatana* katana{ NewObject<AKatana>(this, AKatana::StaticClass()) };
+	weapon_inventory.Emplace(katana->GetWeapon());
+
 	//////////////////////////////////////////////////////////////////////////
 	NohController = GetWorld()->GetFirstPlayerController();
 
+	/*
 	if (spawngreatsword)
 	{
 		UWorld* world{ GetWorld() };
@@ -423,7 +428,7 @@ void ANohCharacter::BeginPlay()
 			weapon_inventory[currentweaponindex]->AttachToComponent(GetMesh(), rules, weaponsocket);
 		}
 	}
-
+	*/
 	hud = Cast<ANohHUD>(NohController->GetHUD());
 }
 

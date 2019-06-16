@@ -11,21 +11,16 @@ AWeapons::AWeapons(FName weapontype, int damage, float weaponattackspeed)
 {
 }
 
-
-
-void AWeapons::onWeaponPickup(AActor* MyOverlappedActor, AActor* OtherActor)
+void AWeapons::Debugprint() const
 {
 }
 
-
+AWeapons* AWeapons::GetWeapon()
+{
+	return nullptr;
+}
 
 void AWeapons::weaponAction(int combophase)
-{
-}
-
-
-
-void AWeapons::debugprint() const
 {
 }
 

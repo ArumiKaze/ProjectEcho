@@ -4,14 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "INTERFACE_Weapons.h"
 #include "NohCharacter.h"
 #include "Runtime/Engine/Classes/Engine/World.h"
 #include "Runtime/Engine/Classes/GameFramework/PlayerController.h"
+#include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
+#include "Runtime/Engine/Classes/Components/SkeletalMeshComponent.h"
+#include "UObject/ConstructorHelpers.h"
 #include "Weapons.generated.h"
 
 UCLASS()
-class NOH_API AWeapons : public AActor, public IINTERFACE_Weapons
+class NOH_API AWeapons : public AActor
 {
 	GENERATED_BODY()
 
@@ -23,13 +25,6 @@ private:
 
 protected:
 
-	UPROPERTY()
-		class ANohCharacter* m_nohcharacter;
-
-
-
-	virtual void onWeaponPickup(AActor* MyOverlappedActor, AActor* OtherActor);
-
 	virtual void weaponAction(int combophase);
 
 public:
@@ -37,9 +32,9 @@ public:
 	AWeapons();
 	AWeapons(FName weapontype, int damage, float weaponattackspeed);
 
+	virtual void Debugprint() const;
 
-
-	virtual void debugprint() const;
+	virtual AWeapons* GetWeapon();
 
 	virtual FName getweaponsheathSocket(bool sheathed) const;
 

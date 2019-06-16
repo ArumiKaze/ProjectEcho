@@ -19,12 +19,12 @@ class NOH_API IINTERFACE_Weapons
 protected:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-		void onWeaponPickup(AActor* MyOverlappedActor, AActor* OtherActor);
-
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 		void weaponAction(int combophase);
 
 public:
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	AWeapons* GetWeapon();
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 		void debugprint() const;

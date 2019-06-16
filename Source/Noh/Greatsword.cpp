@@ -5,9 +5,10 @@
 AGreatsword::AGreatsword()
 	:AWeapons{ "greatsword", 200, 0.5f }
 {
-	OnActorBeginOverlap.AddDynamic(this, &AGreatsword::onWeaponPickup);
+	//OnActorBeginOverlap.AddDynamic(this, &AGreatsword::onWeaponPickup);
 }
 
+/*
 void AGreatsword::onWeaponPickup(AActor * MyOverlappedActor, AActor * OtherActor)
 {
 	if (spawngreatsword)
@@ -27,9 +28,11 @@ void AGreatsword::onWeaponPickup(AActor * MyOverlappedActor, AActor * OtherActor
 		}
 	}
 }
+*/
 
 void AGreatsword::weaponAction(int combophase)
 {
+	/*
 	m_nohcharacter = Cast<ANohCharacter>(GetWorld()->GetFirstPlayerController()->GetCharacter());
 	if (m_nohcharacter)
 	{
@@ -51,6 +54,7 @@ void AGreatsword::weaponAction(int combophase)
 		}
 		m_nohcharacter->LaunchCharacter(Force, true, true);
 	}
+	*/
 }
 
 FName AGreatsword::getweaponsheathSocket(bool sheathed) const
@@ -65,7 +69,7 @@ FName AGreatsword::getweaponsheathSocket(bool sheathed) const
 	}
 }
 
-void AGreatsword::debugprint() const
+void AGreatsword::Debugprint() const
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Debug greatsword"));
 }

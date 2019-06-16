@@ -17,9 +17,6 @@ private:
 protected:
 
 	UFUNCTION(BlueprintCallable)
-		virtual void onWeaponPickup(AActor* MyOverlappedActor, AActor* OtherActor) override;
-
-	UFUNCTION(BlueprintCallable)
 		virtual void weaponAction(int combophase) override;
 
 public:
@@ -27,7 +24,7 @@ public:
 	AGreatsword();
 
 	UFUNCTION(BlueprintCallable)
-		virtual void debugprint() const override;
+		virtual void Debugprint() const override;
 
 	UFUNCTION(BlueprintCallable)
 		virtual FName getweaponsheathSocket(bool sheathed) const override;

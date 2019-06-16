@@ -417,12 +417,6 @@ private:
 	UPROPERTY()
 		class ANohHUD* hud;		//Pointer to HUD from controller in world
 
-	//Character equipable weapons//
-	UPROPERTY()
-		TSubclassOf<class ASword> spawnsword;				//Basic sword
-	UPROPERTY()
-		TSubclassOf<class AGreatsword> spawngreatsword;		//Great sword
-
 	//Sockets//
 	UPROPERTY()
 		FName weaponsocket;		//Weapon socket, used to determine which socket on the skeleton the weapon will go

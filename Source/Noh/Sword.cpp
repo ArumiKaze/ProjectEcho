@@ -1,13 +1,13 @@
 #include "Sword.h"
 
 
-
 ASword::ASword()
 	:AWeapons{ "sword", 100, 1.0f }
 {
-	OnActorBeginOverlap.AddDynamic(this, &ASword::onWeaponPickup);
+	//OnActorBeginOverlap.AddDynamic(this, &ASword::onWeaponPickup);
 }
 
+/*
 void ASword::onWeaponPickup(AActor * MyOverlappedActor, AActor * OtherActor)
 {
 	if (spawnsword)
@@ -27,9 +27,23 @@ void ASword::onWeaponPickup(AActor * MyOverlappedActor, AActor * OtherActor)
 		}
 	}
 }
+*/
+
+AWeapons* ASword::GetWeapon()
+{
+	ACharacter* NohReference{ UGameplayStatics::GetPlayerCharacter(GetWorld(), 0) };
+	ASword* katana{ nullptr };
+	if (NohReference)
+	{
+		katana = GetWorld()->SpawnActor<ASword>(GetClass(), FVector{0.0f, 0.0f, 0.0f}, FRotator{0.0f, 0.0f, 0.0f}, FActorSpawnParameters());
+		katana->AttachToComponent(NohReference->GetMesh(), FAttachmentTransformRules{ EAttachmentRule::SnapToTarget, true }, "weaponholster");
+	}
+	return katana;
+}
 
 void ASword::weaponAction(int combophase)
 {
+	/*
 	m_nohcharacter = Cast<ANohCharacter>(GetWorld()->GetFirstPlayerController()->GetCharacter());
 	if (m_nohcharacter)
 	{
@@ -51,6 +65,7 @@ void ASword::weaponAction(int combophase)
 		}
 		m_nohcharacter->LaunchCharacter(Force, false, false);
 	}
+	*/
 }
 
 FName ASword::getweaponsheathSocket(bool sheathed) const
@@ -65,7 +80,7 @@ FName ASword::getweaponsheathSocket(bool sheathed) const
 	}
 }
 
-void ASword::debugprint() const
+void ASword::Debugprint() const
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Debug sword"));
 }
