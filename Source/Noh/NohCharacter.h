@@ -126,6 +126,10 @@ private:
 	//Timers//
 	FTimerHandle friction_timer;
 
+	//Character Inventory//
+	UPROPERTY()
+	TArray<class AWeapons*> weapon_inventory;	//Weapon inventory, stores weapons in an array
+
 	//Do Once//
 	bool b_dooncesprint;
 	bool b_dooncerun;
@@ -369,8 +373,8 @@ private:
 	void NohWalk();									//Called when Walk key is pressed, handles character walking
 
 	//---Character Sprint Skill---//
-	void Sprint();									//Called when Sprint key is pressed, sets character gait to running and flags character as should sprint
-	void Unsprint();								//Called when Sprint key is released, resets character to shouldn't be sprinting
+	void NohSprint();									//Called when Sprint key is pressed, sets character gait to running and flags character as should sprint
+	void NohUnsprint();								//Called when Sprint key is released, resets character to shouldn't be sprinting
 
 	//---Character Aim Skill---//
 	void NohAim();									//Called when Aim key is pressed, zooms in with camera
@@ -378,6 +382,9 @@ private:
 
 	//---Character Ragdoll Skill---//
 	void NohRagdoll();								//Called when character needs to ragdoll
+
+	//---Character Weapon Un/Sheath---//
+	void Sheath_Unsheath();							//Called when Un/Sheath key is pressed, handles character un/sheathing weapon
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -401,10 +408,6 @@ private:
 	//Timers//
 	FTimerHandle combo_timer;
 	FTimerHandle weaponswap_timer;
-	
-	//Inventory//
-	UPROPERTY()
-		TArray<class AWeapons*> weapon_inventory;	//Weapon inventory, stores weapons in an array
 
 	//Player controller//
 	UPROPERTY()
@@ -428,7 +431,6 @@ private:
 	
 	//void Dodge();									//Called when Dodge key is pressed, handles dodging
 	//void DodgeTick(float delta);					//Called in Tick, launches character every tick
-	void Sheath_Unsheath();							//Called when Un/Sheath key is pressed, handles character un/sheathing weapon
 	void WeaponSwitchHold();						//Called when Weaponswap key is held for a brief amount of time, calls WeaponSwitchAction() to handle weapon swapping if held long enough
 	void weaponswitchtimeline(float delta);			//Called in Tick when weapon switching, moves camera to weapon swap position
 	void Attack();									//Called when Attack key is pressed, handles character attacking
@@ -490,7 +492,7 @@ protected:
 
 	//Player Current Velocity//
 	UPROPERTY(BluePrintReadOnly)
-	FVector nohcharactervelocity;	//Variable that holds current velocity of character
+	FVector nohcharactervelocity;
 
 	//Player Movement Input and Velocity Difference//
 	UPROPERTY(BluePrintReadOnly)
@@ -556,6 +558,12 @@ protected:
 	UPROPERTY(BluePrintReadOnly)
 	float ikpelvisoffset;
 
+	//Character Sheath State//
+	UPROPERTY(BluePrintReadOnly)
+	bool b_issheathed;
+	UPROPERTY(BluePrintReadOnly)
+	bool b_issheathing;
+
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -564,10 +572,6 @@ protected:
 		bool b_isidle;
 	UPROPERTY(BluePrintReadOnly)		//State check dodge
 		bool b_isdodging;
-	UPROPERTY(BluePrintReadOnly)		//State check weapon sheathed
-		bool b_issheathed;
-	UPROPERTY(BluePrintReadOnly)		//State check in process of un/sheathing weapon
-		bool b_issheathing;
 	UPROPERTY(BluePrintReadOnly)		//State check weapon swap
 		bool b_isswitching;
 	UPROPERTY(BluePrintReadOnly)		//State check whether player is holding down weapon swap key

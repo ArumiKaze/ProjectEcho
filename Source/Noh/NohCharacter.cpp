@@ -302,6 +302,10 @@ ANohCharacter::ANohCharacter()
 	ikrightfootoffset = FVector{ 0.0f };
 	ikpelvisoffset = 0.0f;
 
+	//Character Sheath State//
+	b_issheathed = true;
+	b_issheathing = false;
+
 	UpdateCharacterMovementSettings();
 
 	///////////////////////////////////////////////////////////////////////////////////////
@@ -314,8 +318,6 @@ ANohCharacter::ANohCharacter()
 	//Main character states
 	b_isidle = true;
 	b_isdodging = false;
-	b_issheathed = true;
-	b_issheathing = false;
 	b_isswitching = false;
 	b_ischargingswitch = false;
 	b_isattacking = false;
@@ -357,7 +359,8 @@ ANohCharacter::ANohCharacter()
 }
 
 //---Player Input Function Bindings---//
-void ANohCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)		//Set up input bindings that call functions
+//Set up input bindings that call functions
+void ANohCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
 	check(PlayerInputComponent);
 	PlayerInputComponent->BindAxis("MoveForward", this, &ANohCharacter::MoveForward);
@@ -367,15 +370,15 @@ void ANohCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ANohCharacter::NohJump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ANohCharacter::NohJumpEnd);
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ANohCharacter::NohCrouch);
-	PlayerInputComponent->BindAction("Run", IE_Pressed, this, &ANohCharacter::Sprint);
-	PlayerInputComponent->BindAction("Run", IE_Released, this, &ANohCharacter::Unsprint);
+	PlayerInputComponent->BindAction("Run", IE_Pressed, this, &ANohCharacter::NohSprint);
+	PlayerInputComponent->BindAction("Run", IE_Released, this, &ANohCharacter::NohUnsprint);
 	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &ANohCharacter::NohAim);
 	PlayerInputComponent->BindAction("Aim", IE_Released, this, &ANohCharacter::NohUnaim);
+	PlayerInputComponent->BindAction("Sheath/Unsheath", IE_Pressed, this, &ANohCharacter::Sheath_Unsheath);
 
 
 
 	//PlayerInputComponent->BindAction("Dodge", IE_Pressed, this, &ANohCharacter::Dodge);
-	PlayerInputComponent->BindAction("Sheath/Unsheath", IE_Pressed, this, &ANohCharacter::Sheath_Unsheath);
 	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &ANohCharacter::Attack);
 	PlayerInputComponent->BindAction("WeaponSwitch", IE_Pressed, this, &ANohCharacter::WeaponSwitchHold);
 	PlayerInputComponent->BindAction("WeaponSwitch", IE_Released, this, &ANohCharacter::WeaponSwitchHold);
@@ -1667,7 +1670,7 @@ void ANohCharacter::NohWalk()
 }
 
 //---Character Sprint Skill---//
-void ANohCharacter::Sprint()
+void ANohCharacter::NohSprint()
 {
 	//Character should sprint and sets gait back to running before sprinting if currently walking
 	b_shouldsprint = true;
@@ -1676,7 +1679,7 @@ void ANohCharacter::Sprint()
 		EventGaitMode(E_GAIT::GT_RUNNING);
 	}
 }
-void ANohCharacter::Unsprint()
+void ANohCharacter::NohUnsprint()
 {
 	//Character should not sprint
 	b_shouldsprint = false;
@@ -1753,6 +1756,28 @@ void ANohCharacter::NohRagdoll()
 	}
 }
 
+//---Character Weapon Un/Sheath---//
+void ANohCharacter::Sheath_Unsheath()
+{
+	if (!b_issheathing && !GetCharacterMovement()->IsFalling() && !b_isdodging && !b_isattacking && !b_isswitching)
+	{
+		if (b_issheathed)
+		{
+			b_issheathing = true;
+			b_issheathed = false;
+
+			FAttachmentTransformRules rules(EAttachmentRule::SnapToTarget, true);
+			weaponsocket = weapon_inventory[currentweaponindex]->getweaponsheathSocket(b_issheathed);
+			weapon_inventory[currentweaponindex]->AttachToComponent(GetMesh(), rules, weaponsocket);
+		}
+		else
+		{
+			b_issheathing = true;
+			b_issheathed = true;
+		}
+	}
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -1805,28 +1830,6 @@ void ANohCharacter::DodgeCooldown()
 }
 */
 
-
-//Sheath and unsheath weapon//
-void ANohCharacter::Sheath_Unsheath()
-{
-	if (!b_issheathing && !GetCharacterMovement()->IsFalling() && !b_isdodging && !b_isattacking && !b_isswitching)
-	{
-		if (b_issheathed)
-		{
-			b_issheathing = true;
-			b_issheathed = false;
-
-			FAttachmentTransformRules rules(EAttachmentRule::SnapToTarget, true);
-			weaponsocket = weapon_inventory[currentweaponindex]->getweaponsheathSocket(b_issheathed);
-			weapon_inventory[currentweaponindex]->AttachToComponent(GetMesh(), rules, weaponsocket);
-		}
-		else
-		{
-			b_issheathing = true;
-			b_issheathed = true;
-		}
-	}
-}
 //Called by un/sheathing anim notifies at the end of the animation, puts weapon back into respective weapon holster socket if sheathing
 void ANohCharacter::Sheath_UnsheathCooldown()
 {
