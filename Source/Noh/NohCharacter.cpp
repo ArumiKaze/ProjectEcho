@@ -403,32 +403,13 @@ void ANohCharacter::BeginPlay()
 		Crouch();
 	}
 
-	//Spawn katana on character
+	//Spawn katana and saya on character
 	AKatana* katana{ NewObject<AKatana>(this, AKatana::StaticClass()) };
 	weapon_inventory.Emplace(katana->GetWeapon());
 
 	//////////////////////////////////////////////////////////////////////////
 	NohController = GetWorld()->GetFirstPlayerController();
 
-	/*
-	if (spawngreatsword)
-	{
-		UWorld* world{ GetWorld() };
-		if (world)
-		{
-			ASword* spawnedsword;
-			weapon_inventory.Emplace(spawnedsword);
-			FActorSpawnParameters spawnparams;
-			spawnparams.Owner = this;
-			FRotator rotator(0.0, 0.0, 0.0);
-			FVector spawnlocation = this->GetActorLocation();
-			weapon_inventory[currentweaponindex] = world->SpawnActor<ASword>(spawnsword, spawnlocation, rotator, spawnparams);
-			FAttachmentTransformRules rules(EAttachmentRule::SnapToTarget, true);
-			weaponsocket = TEXT("weaponholster");
-			weapon_inventory[currentweaponindex]->AttachToComponent(GetMesh(), rules, weaponsocket);
-		}
-	}
-	*/
 	hud = Cast<ANohHUD>(NohController->GetHUD());
 }
 
@@ -1764,16 +1745,12 @@ void ANohCharacter::NohRagdoll()
 //---Character Weapon Un/Sheath---//
 void ANohCharacter::Sheath_Unsheath()
 {
-	if (!b_issheathing && !GetCharacterMovement()->IsFalling() && !b_isdodging && !b_isattacking && !b_isswitching)
+	if (movementmode == E_MOVEMENTMODE::MM_GROUNDED && stancemode == E_STANCEMODE::SM_STANDING && !b_issheathing)
 	{
 		if (b_issheathed)
 		{
 			b_issheathing = true;
 			b_issheathed = false;
-
-			FAttachmentTransformRules rules(EAttachmentRule::SnapToTarget, true);
-			weaponsocket = weapon_inventory[currentweaponindex]->getweaponsheathSocket(b_issheathed);
-			weapon_inventory[currentweaponindex]->AttachToComponent(GetMesh(), rules, weaponsocket);
 		}
 		else
 		{

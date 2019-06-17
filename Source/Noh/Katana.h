@@ -14,6 +14,9 @@ private:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class AKatana> bp_katana;
 
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class AActor> bp_saya;
+
 protected:
 
 	UFUNCTION(BlueprintCallable)
