@@ -37,6 +37,7 @@ ANohCharacter::ANohCharacter()
 	idleentrystate = E_IDLEENTRYSTATE::N_IDLE;
 	cardinaldirection = E_CARDINALDIRECTION::CD_NORTH;
 	footsteptype = E_FOOTSTEPTYPE::FST_STEP;
+	currentkatanamove = E_CURRENTKATANAMOVE::LKM_NOTO;
 
 	//Player Aim State//
 	b_aiming = false;
@@ -305,6 +306,9 @@ ANohCharacter::ANohCharacter()
 	b_issheathed = true;
 	b_issheathing = false;
 
+	//Enemy Hit Flag//
+	b_enemyhit = false;
+
 	UpdateCharacterMovementSettings();
 
 	///////////////////////////////////////////////////////////////////////////////////////
@@ -315,7 +319,6 @@ ANohCharacter::ANohCharacter()
 
 
 	//Main character states
-	b_isidle = true;
 	b_isdodging = false;
 	b_isswitching = false;
 	b_ischargingswitch = false;
@@ -1588,6 +1591,21 @@ void ANohCharacter::AddCharacterRotation(FRotator p_addamount)
 	rotation_character = UKismetMathLibrary::NormalizedDeltaRotator(rotation_character, p_addamount);
 	SetActorRotation(rotation_character, ETeleportType::None);
 }
+void ANohCharacter::AnimNotifyState_Sheathing_WeaponAttachDettach()
+{
+	if (!b_issheathed)
+	{
+		weapon_inventory[currentweaponindex]->AttachToComponent(GetMesh(), FAttachmentTransformRules{ EAttachmentRule::SnapToTarget, true }, "socket_righthand");
+	}
+	else
+	{
+		weapon_inventory[currentweaponindex]->AttachToComponent(GetMesh(), FAttachmentTransformRules{ EAttachmentRule::SnapToTarget, true }, "socket_pelvis");
+	}
+}
+void ANohCharacter::AnimNotifyState_Sheathing_End()
+{
+	b_issheathing = false;
+}
 
 
 //---Character Rotation Mode---//
@@ -1751,6 +1769,8 @@ void ANohCharacter::Sheath_Unsheath()
 		{
 			b_issheathing = true;
 			b_issheathed = false;
+
+			weapon_inventory[currentweaponindex]->Unsheath();
 		}
 		else
 		{
@@ -1758,6 +1778,12 @@ void ANohCharacter::Sheath_Unsheath()
 			b_issheathed = true;
 		}
 	}
+}
+
+//---Getters---//
+bool ANohCharacter::GetIsMoving()
+{
+	return b_ismoving;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

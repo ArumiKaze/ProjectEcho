@@ -10,6 +10,7 @@
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 #include "Runtime/Engine/Classes/Components/SkeletalMeshComponent.h"
 #include "UObject/ConstructorHelpers.h"
+#include "Runtime/Engine/Classes/Animation/AnimInstance.h"
 #include "Weapons.generated.h"
 
 UCLASS()
@@ -35,6 +36,8 @@ public:
 	virtual void Debugprint() const;
 
 	virtual AWeapons* GetWeapon();
+
+	virtual void Unsheath();
 
 	virtual FName getweaponsheathSocket(bool sheathed) const;
 

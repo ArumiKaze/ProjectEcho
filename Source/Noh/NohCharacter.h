@@ -73,6 +73,19 @@ enum class E_FOOTSTEPTYPE : uint8
 	FST_JUMP,
 	FST_LAND
 };
+UENUM(BlueprintType)
+enum class E_CURRENTKATANAMOVE : uint8
+{
+	LKM_KAMAE,
+	LKM_HIDARIJOUHOU,
+	LKM_MIGIJOUHOU,
+	LKM_HIDARIKESA,
+	LKM_MIGIKESA,
+	LKM_SHOMEN,
+	LKM_TSUKI,
+	LKM_CHIBURI,
+	LKM_NOTO
+};
 
 UCLASS(config = Game)
 class ANohCharacter : public ACharacter
@@ -85,6 +98,7 @@ private:
 	//Character Main States//
 	E_CARDINALDIRECTION cardinaldirection;
 	E_FOOTSTEPTYPE footsteptype;
+	E_CURRENTKATANAMOVE currentkatanamove;
 
 	//Sub Character States//
 	bool b_shouldsprint;
@@ -125,6 +139,9 @@ private:
 
 	//Timers//
 	FTimerHandle friction_timer;
+
+	//Enemy Hit Flag//
+	bool b_enemyhit;
 
 	//Character Inventory//
 	UPROPERTY()
@@ -562,8 +579,6 @@ protected:
 
 
 	//Main character states//
-	UPROPERTY(BluePrintReadOnly)		//State check idle
-		bool b_isidle;
 	UPROPERTY(BluePrintReadOnly)		//State check dodge
 		bool b_isdodging;
 	UPROPERTY(BluePrintReadOnly)		//State check weapon swap
@@ -613,6 +628,11 @@ public:
 	void SetPivotParams(float p_pivotdirection, E_MOVEMENTDIRECTION p_completedmovementdirection, float p_completedstarttime, E_MOVEMENTDIRECTION p_interruptedmovementdirection, float p_interruptedstarttime);
 	void SetTurnInPlace(UAnimMontage*& p_montage, bool p_shouldturninplace, bool p_turninginplace, bool p_rightturn);
 	void AddCharacterRotation(FRotator p_addamountz);
+	void AnimNotifyState_Sheathing_WeaponAttachDettach();
+	void AnimNotifyState_Sheathing_End();
+
+	//---Getters---//
+	bool GetIsMoving();
 
 	////////////////////////////////////////////////////////////////////////////////////
 

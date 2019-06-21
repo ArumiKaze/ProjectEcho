@@ -11,11 +11,17 @@ class NOH_API AKatana : public AWeapons
 
 private:
 
+	//Katana and Saya blueprints
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class AKatana> bp_katana;
-
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class AActor> bp_saya;
+
+	//Animation montages
+	UPROPERTY()
+	UAnimMontage* nbattou_idle;
+	UPROPERTY()
+	UAnimMontage* nbattou_moving;
 
 protected:
 
@@ -31,4 +37,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	virtual AWeapons* GetWeapon() override;
+
+	UFUNCTION(BlueprintCallable)
+	virtual void Unsheath() override;
 };

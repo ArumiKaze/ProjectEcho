@@ -20,6 +20,13 @@ AWeapons* AWeapons::GetWeapon()
 	return nullptr;
 }
 
+void AWeapons::Unsheath()
+{
+}
+
+
+
+
 void AWeapons::weaponAction(int combophase)
 {
 }
