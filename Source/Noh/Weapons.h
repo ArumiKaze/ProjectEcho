@@ -1,16 +1,7 @@
-//Abstract class for Weapons//
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "NohCharacter.h"
-#include "Runtime/Engine/Classes/Engine/World.h"
-#include "Runtime/Engine/Classes/GameFramework/PlayerController.h"
-#include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
-#include "Runtime/Engine/Classes/Components/SkeletalMeshComponent.h"
-#include "UObject/ConstructorHelpers.h"
-#include "Runtime/Engine/Classes/Animation/AnimInstance.h"
 #include "Weapons.generated.h"
 
 UCLASS()
@@ -38,6 +29,8 @@ public:
 	virtual AWeapons* GetWeapon();
 
 	virtual void Unsheath();
+
+	virtual void Sheath();
 
 	virtual FName getweaponsheathSocket(bool sheathed) const;
 

@@ -1,4 +1,11 @@
 #include "Katana.h"
+#include "NohCharacter.h"
+#include "Runtime/Engine/Classes/Engine/World.h"
+#include "Runtime/Engine/Classes/GameFramework/PlayerController.h"
+#include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
+#include "Runtime/Engine/Classes/Components/SkeletalMeshComponent.h"
+#include "UObject/ConstructorHelpers.h"
+#include "Runtime/Engine/Classes/Animation/AnimInstance.h"
 
 AKatana::AKatana()
 	:AWeapons{ "katana", 1, 1.0f }
@@ -50,8 +57,7 @@ AWeapons* AKatana::GetWeapon()
 
 void AKatana::Unsheath()
 {
-	ACharacter* CharacterReference{ UGameplayStatics::GetPlayerCharacter(GetWorld(), 0) };
-	ANohCharacter* NohReference{ Cast<ANohCharacter>(CharacterReference) };
+	ANohCharacter* NohReference{ Cast<ANohCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)) };
 	if (NohReference)
 	{
 		if (!NohReference->GetIsMoving())
@@ -61,6 +67,40 @@ void AKatana::Unsheath()
 		else
 		{
 			NohReference->GetMesh()->GetAnimInstance()->Montage_Play(nbattou_moving, 1.5f, EMontagePlayReturnType::MontageLength, 0.0f, true);
+		}
+	}
+}
+
+void AKatana::Sheath()
+{
+	ANohCharacter* NohReference{ Cast<ANohCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)) };
+	if (NohReference)
+	{
+		if (!NohReference->GetIsMoving())
+		{
+			if (NohReference->GetEnemyHit())
+			{
+				switch (NohReference->GetCurrentKatanaMove())
+				{
+					case E_CURRENTKATANAMOVE::LKM_KAMAE:
+						break;
+				}
+			}
+			else
+			{
+
+			}
+		}
+		else
+		{
+			if (NohReference->GetEnemyHit())
+			{
+
+			}
+			else
+			{
+
+			}
 		}
 	}
 }

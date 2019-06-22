@@ -1,5 +1,6 @@
 #include "AnimNotifyState_Pivot.h"
 #include "Runtime/Engine/Classes/Components/SkeletalMeshComponent.h"
+#include "NohCharacter.h"
 
 UAnimNotifyState_Pivot::UAnimNotifyState_Pivot()
 {

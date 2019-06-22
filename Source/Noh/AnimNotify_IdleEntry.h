@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotify.h"
-#include "NohCharacter.h"
+#include "NohCharacterEnums.h"
 #include "AnimNotify_IdleEntry.generated.h"
 
 UCLASS()

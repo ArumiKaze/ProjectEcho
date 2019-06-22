@@ -1,6 +1,7 @@
 #include "AnimNotify_Footstep.h"
 #include "Runtime/Engine/Classes/Components/SkeletalMeshComponent.h"
 #include "UObject/ConstructorHelpers.h"
+#include "NohCharacter.h"
 
 UAnimNotify_Footstep::UAnimNotify_Footstep()
 {

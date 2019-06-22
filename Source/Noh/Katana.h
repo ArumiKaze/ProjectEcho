@@ -40,4 +40,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	virtual void Unsheath() override;
+
+	UFUNCTION(BlueprintCallable)
+	virtual void Sheath() override;
 };

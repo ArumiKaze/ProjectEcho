@@ -1,7 +1,6 @@
 #include "Weapons.h"
 
 
-
 AWeapons::AWeapons()
 	: m_weapontype{ "" }, m_damage{ 0 }, m_weaponattackspeed{ 0.0f }
 {
@@ -21,6 +20,10 @@ AWeapons* AWeapons::GetWeapon()
 }
 
 void AWeapons::Unsheath()
+{
+}
+
+void AWeapons::Sheath()
 {
 }
 

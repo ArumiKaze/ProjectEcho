@@ -2,8 +2,8 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotify.h"
-#include "Runtime/Engine/Classes/Sound/SoundBase.h"
-#include "NohCharacter.h"
+//#include "Runtime/Engine/Classes/Sound/SoundBase.h"
+#include "NohCharacterEnums.h"
 #include "AnimNotify_Footstep.generated.h"
 
 UCLASS()

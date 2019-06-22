@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotifyState.h"
-#include "NohCharacter.h"
+#include "NohCharacterEnums.h"
 #include "AnimNotifyState_Pivot.generated.h"
 
 USTRUCT(BlueprintType)

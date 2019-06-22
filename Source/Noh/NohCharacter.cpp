@@ -133,7 +133,6 @@ ANohCharacter::ANohCharacter()
 
 	//Camera Timeline//
 	cameralerptimeline = NewObject<UTimelineComponent>(this, TEXT("CameraTimeline"));
-	oncameratimelineupdatereturn.BindUFunction(this, FName(TEXT("CameraTimelineUpdateReturn")));
 
 	//Yaw Angle Difference Between Looking Rotation And Character Rotation//
 	aimyawdelta = 0.0f;
@@ -856,7 +855,7 @@ void ANohCharacter::SetCharacterRotation(FRotator targetrotation, bool interprot
 //Dynamically get rotation rate based on character's movement speed
 float ANohCharacter::CalculateRotationRate(float slowspeed, float slowspeedrate, float fastspeed, float fastspeedrate)
 {
-	float speed{ FVector{nohcharactervelocity.X, nohcharactervelocity.Y, 0.0f}.Size() };
+	speed = FVector{nohcharactervelocity.X, nohcharactervelocity.Y, 0.0f}.Size();
 	float interpseed{ speed > slowspeed ? UKismetMathLibrary::MapRangeUnclamped(speed, slowspeed, fastspeed, slowspeedrate, fastspeedrate) : UKismetMathLibrary::MapRangeUnclamped(speed, 0.0f, slowspeed, 0.0f, slowspeedrate) };
 
 	//Rotation rate multiplier is used to ramp down rotation rate whenever it is set to 0, automatically returns to 1
@@ -1280,6 +1279,8 @@ void ANohCharacter::UpdateCamera(UCurveFloat* lerpcurve)	//Updates the camera's 
 		break;
 	}
 
+	FOnTimelineFloat oncameratimelineupdatereturn;
+	oncameratimelineupdatereturn.BindUFunction(this, FName(TEXT("CameraTimelineUpdateReturn")));
 	cameralerptimeline->AddInterpFloat(lerpcurve, oncameratimelineupdatereturn, FName(TEXT("LerpAlpha")));
 	cameralerptimeline->SetFloatCurve(lerpcurve, FName(TEXT("LerpAlpha")));
 	cameralerptimeline->SetTimelineLength(lerpcurve->FloatCurve.GetLastKey().Time);
@@ -1784,6 +1785,14 @@ void ANohCharacter::Sheath_Unsheath()
 bool ANohCharacter::GetIsMoving()
 {
 	return b_ismoving;
+}
+bool ANohCharacter::GetEnemyHit()
+{
+	return b_enemyhit;
+}
+E_CURRENTKATANAMOVE ANohCharacter::GetCurrentKatanaMove()
+{
+	return currentkatanamove;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

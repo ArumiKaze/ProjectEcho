@@ -1,5 +1,6 @@
 #include "AnimNotify_IdleEntry.h"
 #include "Runtime/Engine/Classes/Components/SkeletalMeshComponent.h"
+#include "NohCharacter.h"
 
 UAnimNotify_IdleEntry::UAnimNotify_IdleEntry()
 {
