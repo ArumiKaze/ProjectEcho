@@ -12,7 +12,7 @@ AKatana::AKatana()
 {
 	if (GetWorld())
 	{
-		//Load Katana and Saya blueprint
+		//Load Katana and Saya blueprint objects
 		static ConstructorHelpers::FObjectFinder<UClass> KatanaBlueprint(TEXT("Class'/Game/Weapons/Katana/BP_Katana.BP_Katana_C'"));
 		if (KatanaBlueprint.Object) {
 			bp_katana = KatanaBlueprint.Object;
@@ -31,14 +31,32 @@ AKatana::AKatana()
 		if (animmontage_nbattoumoving.Object) {
 			nbattou_moving = animmontage_nbattoumoving.Object;
 		}
+		static ConstructorHelpers::FObjectFinder<UAnimMontage> animmontage_nkamaenotoidle(TEXT("/Game/MainCharacter/Animations/Combat/Katana/Noto/N_Idle_Kamae_Noto"));
+		if (animmontage_nkamaenotoidle.Object) {
+			nkamae_noto_idle = animmontage_nkamaenotoidle.Object;
+		}
+		static ConstructorHelpers::FObjectFinder<UAnimMontage> animmontage_nkamaenotomoving(TEXT("/Game/MainCharacter/Animations/Combat/Katana/Noto/N_Moving_Kamae_Noto"));
+		if (animmontage_nkamaenotomoving.Object) {
+			nkamae_noto_moving = animmontage_nkamaenotomoving.Object;
+		}
+		static ConstructorHelpers::FObjectFinder<UAnimMontage> animmontage_nkamaechiburinotoidle(TEXT("/Game/MainCharacter/Animations/Combat/Katana/Noto/N_Idle_Kamae_ChiburiNoto"));
+		if (animmontage_nkamaechiburinotoidle.Object) {
+			nkamae_chiburinoto_idle = animmontage_nkamaechiburinotoidle.Object;
+		}
+		static ConstructorHelpers::FObjectFinder<UAnimMontage> animmontage_nkamaechiburinotomoving(TEXT("/Game/MainCharacter/Animations/Combat/Katana/Noto/N_Moving_Kamae_ChiburiNoto"));
+		if (animmontage_nkamaechiburinotomoving.Object) {
+			nkamae_chiburinoto_moving = animmontage_nkamaechiburinotomoving.Object;
+		}
 	}
 }
 
+//---Debug Print---//
 void AKatana::Debugprint() const
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Debug katana"));
 }
 
+//---Get Katana---//
 AWeapons* AKatana::GetWeapon()
 {
 	ACharacter* NohReference{ UGameplayStatics::GetPlayerCharacter(GetWorld(), 0) };
@@ -55,7 +73,8 @@ AWeapons* AKatana::GetWeapon()
 	return katana;
 }
 
-void AKatana::Unsheath()
+//---Unsheath Katana---//
+void AKatana::Unsheath() const
 {
 	ANohCharacter* NohReference{ Cast<ANohCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)) };
 	if (NohReference)
@@ -71,36 +90,50 @@ void AKatana::Unsheath()
 	}
 }
 
-void AKatana::Sheath()
+//---Sheath Katana---//
+void AKatana::Sheath() const
 {
 	ANohCharacter* NohReference{ Cast<ANohCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)) };
 	if (NohReference)
 	{
-		if (!NohReference->GetIsMoving())
+		switch (NohReference->GetCurrentKatanaMove())
 		{
+		case E_CURRENTKATANAMOVE::LKM_KAMAE:
 			if (NohReference->GetEnemyHit())
 			{
-				switch (NohReference->GetCurrentKatanaMove())
+				if (NohReference->GetIsMoving())
 				{
-					case E_CURRENTKATANAMOVE::LKM_KAMAE:
-						break;
+					NohReference->GetMesh()->GetAnimInstance()->Montage_Play(nkamae_chiburinoto_moving, 1.0f, EMontagePlayReturnType::MontageLength, 0.0f, true);
+				}
+				else
+				{
+					NohReference->GetMesh()->GetAnimInstance()->Montage_Play(nkamae_chiburinoto_idle, 1.0f, EMontagePlayReturnType::MontageLength, 0.0f, true);
 				}
 			}
 			else
 			{
-
+				if (NohReference->GetIsMoving())
+				{
+					NohReference->GetMesh()->GetAnimInstance()->Montage_Play(nkamae_noto_moving, 1.0f, EMontagePlayReturnType::MontageLength, 0.0f, true);
+				}
+				else
+				{
+					NohReference->GetMesh()->GetAnimInstance()->Montage_Play(nkamae_noto_idle, 1.0f, EMontagePlayReturnType::MontageLength, 0.0f, true);
+				}
 			}
-		}
-		else
-		{
-			if (NohReference->GetEnemyHit())
-			{
-
-			}
-			else
-			{
-
-			}
+			break;
+		case E_CURRENTKATANAMOVE::LKM_HIDARIJOUHOU:
+			break;
+		case E_CURRENTKATANAMOVE::LKM_MIGIJOUHOU:
+			break;
+		case E_CURRENTKATANAMOVE::LKM_HIDARIKESA:
+			break;
+		case E_CURRENTKATANAMOVE::LKM_MIGIKESA:
+			break;
+		case E_CURRENTKATANAMOVE::LKM_SHOMEN:
+			break;
+		case E_CURRENTKATANAMOVE::LKM_TSUKI:
+			break;
 		}
 	}
 }

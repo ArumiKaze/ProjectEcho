@@ -306,7 +306,7 @@ ANohCharacter::ANohCharacter()
 	b_issheathing = false;
 
 	//Enemy Hit Flag//
-	b_enemyhit = false;
+	b_enemyhit = true;
 
 	UpdateCharacterMovementSettings();
 
@@ -1770,6 +1770,7 @@ void ANohCharacter::Sheath_Unsheath()
 		{
 			b_issheathing = true;
 			b_issheathed = false;
+			currentkatanamove = E_CURRENTKATANAMOVE::LKM_KAMAE;
 
 			weapon_inventory[currentweaponindex]->Unsheath();
 		}
@@ -1777,6 +1778,9 @@ void ANohCharacter::Sheath_Unsheath()
 		{
 			b_issheathing = true;
 			b_issheathed = true;
+
+			weapon_inventory[currentweaponindex]->Sheath();
+			currentkatanamove = E_CURRENTKATANAMOVE::LKM_NOTO;
 		}
 	}
 }

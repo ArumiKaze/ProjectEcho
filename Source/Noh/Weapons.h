@@ -28,9 +28,11 @@ public:
 
 	virtual AWeapons* GetWeapon();
 
-	virtual void Unsheath();
+	virtual void Unsheath() const;
 
-	virtual void Sheath();
+	virtual void Sheath() const;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////
 
 	virtual FName getweaponsheathSocket(bool sheathed) const;
 
