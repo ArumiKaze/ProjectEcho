@@ -16,7 +16,6 @@ private:
 	//Character Main States//
 	E_CARDINALDIRECTION cardinaldirection;
 	E_FOOTSTEPTYPE footsteptype;
-	E_CURRENTKATANAMOVE currentkatanamove;
 
 	//Sub Character States//
 	bool b_shouldsprint;
@@ -389,6 +388,8 @@ protected:
 	E_IDLEENTRYSTATE idleentrystate;
 	UPROPERTY(BluePrintReadWrite)
 	E_ACTIVELOCOSTATE activelocostate;
+	UPROPERTY(BluePrintReadOnly)
+	E_ACTIVEWEAPON activeweapon;
 
 	//Player Aim State//
 	UPROPERTY(BluePrintReadOnly)
@@ -527,8 +528,6 @@ protected:
 		void ComboReset();
 	UFUNCTION(BlueprintCallable)
 		void WeaponSwitchAction();			//Called in Blueprints, is used to call this function when UI is active because key presses are disabled during UI Only mode
-	UFUNCTION(BlueprintCallable)
-		void spawnweaponbyIndex(FName x);	//Called in Blueprints, is used to spawn weapon by looking through the inventory Array and sees if the player has the weapon stored
 public:
 
 	//---Constructor---//
@@ -551,15 +550,15 @@ public:
 	//---Getters---//
 	bool GetIsMoving();
 	bool GetEnemyHit();
-	E_CURRENTKATANAMOVE GetCurrentKatanaMove();
+
+	//---Setters---//
+	void SetActiveWeapon(FName weaponname);
 
 	////////////////////////////////////////////////////////////////////////////////////
 
 	//Getters//
 	UFUNCTION()
 		bool getIsAttacking();		//Called by outside classes, checks whether character is currently attacking
-	UFUNCTION()
-		int getWeaponDamage();		//Called by outside classes, checks damage of current weapon that is equipped
 	UFUNCTION(BlueprintCallable)
 		AActor* getWeapon();		//Called in Blueprints, gets pointer to current weapon character has equipped
 

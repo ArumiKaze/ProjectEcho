@@ -21,11 +21,13 @@ void AEnemy_Dummy::onWeaponHit(UPrimitiveComponent * OverlappedComp, AActor * Ot
 	m_nohcharacter = Cast<ANohCharacter>(GetWorld()->GetFirstPlayerController()->GetCharacter());
 	if (m_nohcharacter)
 	{
+		/*
 		if (OtherActor == m_nohcharacter->getWeapon() && !m_invincible && m_nohcharacter->getIsAttacking())
 		{
 			m_invincible = true;
-			takeDamage(m_nohcharacter->getWeaponDamage());
-			GetWorld()->GetTimerManager().SetTimer(invicibleframe_timer, this, &AEnemy_Dummy::invicibleDuration, 1.0f);
+			//takeDamage(m_nohcharacter->getWeaponDamage());
+			//GetWorld()->GetTimerManager().SetTimer(invicibleframe_timer, this, &AEnemy_Dummy::invicibleDuration, 1.0f);
 		}
+		*/
 	}
 }

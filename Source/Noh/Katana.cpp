@@ -8,10 +8,13 @@
 #include "Runtime/Engine/Classes/Animation/AnimInstance.h"
 
 AKatana::AKatana()
-	:AWeapons{ "katana", 1, 1.0f }
+	:AWeapons{ "katana" }
 {
 	if (GetWorld())
 	{
+		//Current katana state, starts at noto
+		katanastate = E_KATANASTATE::KS_NOTO;
+
 		//Load Katana and Saya blueprint objects
 		static ConstructorHelpers::FObjectFinder<UClass> KatanaBlueprint(TEXT("Class'/Game/Weapons/Katana/BP_Katana.BP_Katana_C'"));
 		if (KatanaBlueprint.Object) {
@@ -50,12 +53,6 @@ AKatana::AKatana()
 	}
 }
 
-//---Debug Print---//
-void AKatana::Debugprint() const
-{
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Debug katana"));
-}
-
 //---Get Katana---//
 AWeapons* AKatana::GetWeapon()
 {
@@ -74,11 +71,13 @@ AWeapons* AKatana::GetWeapon()
 }
 
 //---Unsheath Katana---//
-void AKatana::Unsheath() const
+void AKatana::Unsheath()
 {
 	ANohCharacter* NohReference{ Cast<ANohCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)) };
 	if (NohReference)
 	{
+		katanastate = E_KATANASTATE::KS_KAMAE;
+		NohReference->SetActiveWeapon(AWeapons::m_weaponname);
 		if (!NohReference->GetIsMoving())
 		{
 			NohReference->GetMesh()->GetAnimInstance()->Montage_Play(nbattou_idle, 1.0f, EMontagePlayReturnType::MontageLength, 0.0f, true);
@@ -91,14 +90,14 @@ void AKatana::Unsheath() const
 }
 
 //---Sheath Katana---//
-void AKatana::Sheath() const
+void AKatana::Sheath()
 {
 	ANohCharacter* NohReference{ Cast<ANohCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)) };
 	if (NohReference)
 	{
-		switch (NohReference->GetCurrentKatanaMove())
+		switch (katanastate)
 		{
-		case E_CURRENTKATANAMOVE::LKM_KAMAE:
+		case E_KATANASTATE::KS_KAMAE:
 			if (NohReference->GetEnemyHit())
 			{
 				if (NohReference->GetIsMoving())
@@ -122,22 +121,20 @@ void AKatana::Sheath() const
 				}
 			}
 			break;
-		case E_CURRENTKATANAMOVE::LKM_HIDARIJOUHOU:
+		case E_KATANASTATE::KS_HIDARIJOUHOU:
 			break;
-		case E_CURRENTKATANAMOVE::LKM_MIGIJOUHOU:
+		case E_KATANASTATE::KS_MIGIJOUHOU:
 			break;
-		case E_CURRENTKATANAMOVE::LKM_HIDARIKESA:
+		case E_KATANASTATE::KS_HIDARIKESA:
 			break;
-		case E_CURRENTKATANAMOVE::LKM_MIGIKESA:
+		case E_KATANASTATE::KS_MIGIKESA:
 			break;
-		case E_CURRENTKATANAMOVE::LKM_SHOMEN:
+		case E_KATANASTATE::KS_SHOMEN:
 			break;
-		case E_CURRENTKATANAMOVE::LKM_TSUKI:
+		case E_KATANASTATE::KS_TSUKI:
 			break;
 		}
-	}
-}
 
-void AKatana::weaponAction(int combophase)
-{
+		katanastate = E_KATANASTATE::KS_NOTO;
+	}
 }

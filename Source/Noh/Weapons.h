@@ -11,37 +11,18 @@ class NOH_API AWeapons : public AActor
 
 private:
 
-	FName m_weapontype;
-	int m_damage;
-	float m_weaponattackspeed;
-
 protected:
 
-	virtual void weaponAction(int combophase);
+	FName m_weaponname;
 
 public:
 
 	AWeapons();
-	AWeapons(FName weapontype, int damage, float weaponattackspeed);
-
-	virtual void Debugprint() const;
+	AWeapons(FName weaponname);
 
 	virtual AWeapons* GetWeapon();
 
-	virtual void Unsheath() const;
+	virtual void Unsheath();
 
-	virtual void Sheath() const;
-
-	////////////////////////////////////////////////////////////////////////////////////////////////
-
-	virtual FName getweaponsheathSocket(bool sheathed) const;
-
-	UFUNCTION(BlueprintCallable)
-		int getDamage() const;
-
-	UFUNCTION(BlueprintCallable)
-		FName getweaponType() const;
-
-	UFUNCTION(BlueprintCallable)
-		float getAttackspeed() const;
+	virtual void Sheath();
 };

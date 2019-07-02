@@ -37,7 +37,7 @@ ANohCharacter::ANohCharacter()
 	idleentrystate = E_IDLEENTRYSTATE::N_IDLE;
 	cardinaldirection = E_CARDINALDIRECTION::CD_NORTH;
 	footsteptype = E_FOOTSTEPTYPE::FST_STEP;
-	currentkatanamove = E_CURRENTKATANAMOVE::LKM_NOTO;
+	activeweapon = E_ACTIVEWEAPON::AW_NONE;
 
 	//Player Aim State//
 	b_aiming = false;
@@ -306,7 +306,7 @@ ANohCharacter::ANohCharacter()
 	b_issheathing = false;
 
 	//Enemy Hit Flag//
-	b_enemyhit = true;
+	b_enemyhit = false;
 
 	UpdateCharacterMovementSettings();
 
@@ -1770,7 +1770,6 @@ void ANohCharacter::Sheath_Unsheath()
 		{
 			b_issheathing = true;
 			b_issheathed = false;
-			currentkatanamove = E_CURRENTKATANAMOVE::LKM_KAMAE;
 
 			weapon_inventory[currentweaponindex]->Unsheath();
 		}
@@ -1780,7 +1779,6 @@ void ANohCharacter::Sheath_Unsheath()
 			b_issheathed = true;
 
 			weapon_inventory[currentweaponindex]->Sheath();
-			currentkatanamove = E_CURRENTKATANAMOVE::LKM_NOTO;
 		}
 	}
 }
@@ -1794,9 +1792,18 @@ bool ANohCharacter::GetEnemyHit()
 {
 	return b_enemyhit;
 }
-E_CURRENTKATANAMOVE ANohCharacter::GetCurrentKatanaMove()
+
+//---Setters---//
+void ANohCharacter::SetActiveWeapon(FName weaponname)
 {
-	return currentkatanamove;
+	if (weaponname == "katana")
+	{
+		activeweapon = E_ACTIVEWEAPON::AW_KATANA;
+	}
+	else
+	{
+		activeweapon = E_ACTIVEWEAPON::AW_NONE;
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1858,7 +1865,7 @@ void ANohCharacter::Sheath_UnsheathCooldown()
 	if (b_issheathed)
 	{
 		FAttachmentTransformRules rules(EAttachmentRule::SnapToTarget, true);
-		weaponsocket = weapon_inventory[currentweaponindex]->getweaponsheathSocket(b_issheathed);
+		//weaponsocket = weapon_inventory[currentweaponindex]->getweaponsheathSocket(b_issheathed);
 		weapon_inventory[currentweaponindex]->AttachToComponent(GetMesh(), rules, weaponsocket);
 	}
 }
@@ -2078,7 +2085,7 @@ void ANohCharacter::addWeaponInventory(AWeapons* w)
 }
 
 
-
+/*
 //Spawns weapon from inventory if it exists//
 void ANohCharacter::spawnweaponbyIndex(FName x)
 {
@@ -2098,17 +2105,13 @@ void ANohCharacter::spawnweaponbyIndex(FName x)
 		weapon_inventory[currentweaponindex]->AttachToComponent(GetMesh(), rules, weaponsocket);
 	}
 }
-
+*/
 
 
 //Getter & Setters//
 bool ANohCharacter::getIsAttacking()
 {
 	return b_isattacking;
-}
-int ANohCharacter::getWeaponDamage()
-{
-	return weapon_inventory[currentweaponindex]->getDamage();
 }
 AActor* ANohCharacter::getWeapon()
 {

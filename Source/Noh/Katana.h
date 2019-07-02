@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Weapons.h"
+#include "NohCharacterEnums.h"
 #include "Katana.generated.h"
 
 UCLASS()
@@ -10,6 +11,9 @@ class NOH_API AKatana : public AWeapons
 	GENERATED_BODY()
 
 private:
+
+	//---Current Katana State---//
+	E_KATANASTATE katanastate;
 
 	//---Katana and Saya blueprints---//
 	UPROPERTY(EditAnywhere)
@@ -35,16 +39,9 @@ private:
 
 protected:
 
-	UFUNCTION(BlueprintCallable)
-	virtual void weaponAction(int combophase) override;
-
 public:
 
 	AKatana();
-
-	//---Debug Print---//
-	UFUNCTION(BlueprintCallable)
-	virtual void Debugprint() const override;
 
 	//---Get Katana---//
 	UFUNCTION(BlueprintCallable)
@@ -52,9 +49,9 @@ public:
 
 	//---Unsheath Katana---//
 	UFUNCTION(BlueprintCallable)
-	virtual void Unsheath() const override;
+	virtual void Unsheath() override;
 
 	//---Sheath Katana---//
 	UFUNCTION(BlueprintCallable)
-	virtual void Sheath() const override;
+	virtual void Sheath() override;
 };
