@@ -321,53 +321,16 @@ private:
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	//Private sub character states//
-	bool b_ischaining;					//State check combo chaining
-	bool b_isswitching_camerazoom;		//State check camera is moving for Weaponswap
-	bool b_canmove;						//State check character can move or not
-	bool b_canledgetrace;				//
-	float weaponswapcasttime;			//Current weapon swap cast time
-
 	//FInterpTo values//
 	int currentweaponindex; //Current weapon index in character weapon array inventory
 
-	//
-	UPROPERTY()
-	class USphereComponent* spheretracerledge;
-	FVector walltraceimpact;
-	FVector wallnormal;
-	FVector ledgeheight;
-
-	//Timers//
-	FTimerHandle combo_timer;
-	FTimerHandle weaponswap_timer;
-
-	//Player controller//
-	UPROPERTY()
-		APlayerController* NohController;	//Default controller
-
 	//HUD//
 	UPROPERTY()
-		class ANohHUD* hud;		//Pointer to HUD from controller in world
+	class ANohHUD* hud;		//Pointer to HUD from controller in world
 
 	//Sockets//
 	UPROPERTY()
-		FName weaponsocket;		//Weapon socket, used to determine which socket on the skeleton the weapon will go
-
-	void Cancel();
-	
-	//void Dodge();									//Called when Dodge key is pressed, handles dodging
-	//void DodgeTick(float delta);					//Called in Tick, launches character every tick
-	void WeaponSwitchHold();						//Called when Weaponswap key is held for a brief amount of time, calls WeaponSwitchAction() to handle weapon swapping if held long enough
-	void weaponswitchtimeline(float delta);			//Called in Tick when weapon switching, moves camera to weapon swap position
-	void Attack();									//Called when Attack key is pressed, handles character attacking
-	void LedgeWallTrace();
-	void LedgeHeightTrace();
-	void LedgeLetGo();
-	UFUNCTION()
-	void OnOverlapBegin(UPrimitiveComponent* OverlapComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
-	UFUNCTION()
-	void OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	FName weaponsocket;		//Weapon socket, used to determine which socket on the skeleton the weapon will go
 
 protected:
 
@@ -493,41 +456,6 @@ protected:
 	UPROPERTY(BluePrintReadOnly)
 	bool b_issheathing;
 
-	///////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-	//Main character states//
-	UPROPERTY(BluePrintReadOnly)		//State check dodge
-		bool b_isdodging;
-	UPROPERTY(BluePrintReadOnly)		//State check weapon swap
-		bool b_isswitching;
-	UPROPERTY(BluePrintReadOnly)		//State check whether player is holding down weapon swap key
-		bool b_ischargingswitch;
-	UPROPERTY(BluePrintReadOnly)		//State check player attacking
-		bool b_isattacking;
-	UPROPERTY(BluePrintReadOnly)		//State check player in combat
-		bool b_combatmode;
-	UPROPERTY(BluePrintReadOnly)		//State check player ledge climbing
-		bool b_isledgeclimbing;
-
-	
-
-	//Protected sub character states//
-	UPROPERTY(BluePrintReadOnly)		//Stores which combo the character is on
-		int combonumber;
-	UPROPERTY(BluePrintReadOnly)		//State check whether weapon exists in inventory
-		bool b_foundweapon;
-
-	//UFUNCTION(BlueprintCallable)		//Called in dodge anim notify when animation ends
-		//void DodgeCooldown();
-	UFUNCTION(BlueprintCallable)		//Called in un/sheath weapon anim notify when animation ends
-		void Sheath_UnsheathCooldown();
-	UFUNCTION(BlueprintCallable)		//Called in Character Animation Blueprints, when attack animation ends
-		void Combo();
-	UFUNCTION(BlueprintCallable)		//Called in Character Animation Blueprints, resets combo at end of last combo attack or when player doesn't attack in a while
-		void ComboReset();
-	UFUNCTION(BlueprintCallable)
-		void WeaponSwitchAction();			//Called in Blueprints, is used to call this function when UI is active because key presses are disabled during UI Only mode
 public:
 
 	//---Constructor---//
@@ -553,18 +481,4 @@ public:
 
 	//---Setters---//
 	void SetActiveWeapon(FName weaponname);
-
-	////////////////////////////////////////////////////////////////////////////////////
-
-	//Getters//
-	UFUNCTION()
-		bool getIsAttacking();		//Called by outside classes, checks whether character is currently attacking
-	UFUNCTION(BlueprintCallable)
-		AActor* getWeapon();		//Called in Blueprints, gets pointer to current weapon character has equipped
-
-
-
-	//Public functions, called by other C++ classes//
-	UFUNCTION()
-		void addWeaponInventory(AWeapons* w);			//Called by weapon classes, spawns a weapon in the world and then emplaces it in the weapon inventory
 };

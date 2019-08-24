@@ -12,5 +12,5 @@ ANohGameMode::ANohGameMode()
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
 
-	HUDClass = ANohHUD::StaticClass();
+	//HUDClass = ANohHUD::StaticClass();
 }
