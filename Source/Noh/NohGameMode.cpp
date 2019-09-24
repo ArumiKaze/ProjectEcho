@@ -2,6 +2,7 @@
 #include "NohCharacter.h"
 #include "NohHUD.h"
 #include "UObject/ConstructorHelpers.h"
+#include "Kismet/GameplayStatics.h"
 
 ANohGameMode::ANohGameMode()
 {
@@ -13,4 +14,11 @@ ANohGameMode::ANohGameMode()
 	}
 
 	//HUDClass = ANohHUD::StaticClass();
+}
+
+void ANohGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+
+	UGameplayStatics::CreatePlayer(this, -1, true);
 }

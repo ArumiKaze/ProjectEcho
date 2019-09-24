@@ -30,8 +30,8 @@ ANohCharacter::ANohCharacter()
 	prevmovementmode = E_MOVEMENTMODE::MM_NONE;
 	gaitmode = E_GAIT::GT_RUNNING;
 	stancemode = E_STANCEMODE::SM_STANDING;
-	//rotationmode = E_ROTATIONMODE::RM_LOOKINGDIRECTION;
-	rotationmode = E_ROTATIONMODE::RM_VELOCITYDIRECTION;
+	rotationmode = E_ROTATIONMODE::RM_LOOKINGDIRECTION;
+	//rotationmode = E_ROTATIONMODE::RM_VELOCITYDIRECTION;
 	movementdirection = E_MOVEMENTDIRECTION::MD_FORWARDS;
 	activelocostate = E_ACTIVELOCOSTATE::ALS_NOTMOVING;
 	idleentrystate = E_IDLEENTRYSTATE::N_IDLE;
@@ -120,6 +120,7 @@ ANohCharacter::ANohCharacter()
 
 	//Camera boom (Spring that pulls the player camera in towards the character if there is a collision)//
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->TargetArmLength = 325.0f;										// The camera follows at this distance behind the character
 	CameraBoom->SocketOffset = { 0.0f, 0.0f, 45.0f };
 	CameraBoom->bEnableCameraRotationLag = false;
@@ -132,7 +133,7 @@ ANohCharacter::ANohCharacter()
 	FollowCamera->bUsePawnControlRotation = false;
 
 	//Camera Timeline//
-	cameralerptimeline = NewObject<UTimelineComponent>(this, TEXT("CameraTimeline"));
+	cameralerptimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("CameraTimeline"));
 
 	//Yaw Angle Difference Between Looking Rotation And Character Rotation//
 	aimyawdelta = 0.0f;
@@ -370,6 +371,20 @@ void ANohCharacter::BeginPlay()
 void ANohCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("%f"), GetControlRotation().Roll));
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("%f"), GetControlRotation().Yaw));
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("%f"), GetControlRotation().Pitch));
+	
+	if (0 == UGameplayStatics::GetPlayerControllerID(Cast<APlayerController>(GetController())))
+	{
+		GetController()->SetControlRotation(UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), UGameplayStatics::GetPlayerController(GetWorld(), 1)->GetPawn()->GetActorLocation()));
+	}
+	else
+	{
+		GetController()->SetControlRotation(UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetPawn()->GetActorLocation()));
+	}
+	
 
 	//Calculates important variables such as if the character is moving, direction of character, if the character has movement input, the difference between the movement input and velocity, aim rate, and aim yaw delta
 	CalculateEssentialVariablesTick();

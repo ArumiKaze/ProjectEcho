@@ -3,16 +3,18 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/GameModeBase.h"
+#include "GameFramework/GameMode.h"
 #include "NohGameMode.generated.h"
 
 UCLASS(minimalapi)
-class ANohGameMode : public AGameModeBase
+class ANohGameMode : public AGameMode
 {
 	GENERATED_BODY()
 
 public:
 	ANohGameMode();
+
+	virtual void BeginPlay() override;
 };
 
 
