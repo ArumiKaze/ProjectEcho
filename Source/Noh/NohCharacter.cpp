@@ -22,6 +22,9 @@
 //Default constructor//
 ANohCharacter::ANohCharacter()
 {
+	//Character Self Ref//
+	nohcharacterselfref = this;
+
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(30.0f, 90.0f);
 
@@ -114,6 +117,9 @@ ANohCharacter::ANohCharacter()
 	b_dooncesprint = false;
 	b_dooncerun = false;
 
+	//Physical Animation Component
+	PhysicsAnimComponent = CreateDefaultSubobject<UPhysicalAnimationComponent>(TEXT("PhysicsAnimComponent"));
+
 	//Player Camera Sensitivity//
 	verticalcontrollersensitivity = 150.0f;
 	horizontalcontrollersensitivity = 150.0f;
@@ -125,6 +131,7 @@ ANohCharacter::ANohCharacter()
 	CameraBoom->SocketOffset = { 0.0f, 0.0f, 45.0f };
 	CameraBoom->bEnableCameraRotationLag = false;
 	CameraBoom->CameraLagSpeed = 10.0f;
+	CameraBoom->bDoCollisionTest = false;
 
 	//Follow Camera (Main player camera)//
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
@@ -346,6 +353,21 @@ void ANohCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	
+	if (0 == UGameplayStatics::GetPlayerControllerID(Cast<APlayerController>(GetController())))
+	{
+		GetMesh()->SetCollisionObjectType(ECC_GameTraceChannel1);
+	}
+	else
+	{
+		GetMesh()->SetCollisionObjectType(ECC_GameTraceChannel2);
+	}
+
+	//PhysicsAnimComponent->SetStrengthMultiplyer(99.0);
+	PhysicsAnimComponent->SetSkeletalMeshComponent(GetMesh());
+	PhysicsAnimComponent->ApplyPhysicalAnimationProfileBelow(FName(TEXT("spine_01")), FName(TEXT("HitReaction")), false, false);
+	GetMesh()->SetAllBodiesBelowSimulatePhysics(FName(TEXT("spine_01")), true, false);
+
 	//Create anim notify objects, called in anim sequences
 	animnotifystate_pivot = NewObject<UAnimNotifyState_Pivot>(this, UAnimNotifyState_Pivot::StaticClass());
 
@@ -362,7 +384,7 @@ void ANohCharacter::BeginPlay()
 
 	//Spawn katana and saya on character
 	AKatana* katana{ NewObject<AKatana>(this, AKatana::StaticClass()) };
-	weapon_inventory.Emplace(katana->GetWeapon());
+	weapon_inventory.Emplace(katana->GetWeapon(nohcharacterselfref));
 
 	//hud = Cast<ANohHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
 }
@@ -371,10 +393,6 @@ void ANohCharacter::BeginPlay()
 void ANohCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("%f"), GetControlRotation().Roll));
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("%f"), GetControlRotation().Yaw));
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("%f"), GetControlRotation().Pitch));
 	
 	if (0 == UGameplayStatics::GetPlayerControllerID(Cast<APlayerController>(GetController())))
 	{
@@ -1737,14 +1755,14 @@ void ANohCharacter::Sheath_Unsheath()
 			b_issheathing = true;
 			b_issheathed = false;
 
-			weapon_inventory[currentweaponindex]->Unsheath();
+			weapon_inventory[currentweaponindex]->Unsheath(nohcharacterselfref);
 		}
 		else
 		{
 			b_issheathing = true;
 			b_issheathed = true;
 
-			weapon_inventory[currentweaponindex]->Sheath();
+			weapon_inventory[currentweaponindex]->Sheath(nohcharacterselfref);
 		}
 	}
 }

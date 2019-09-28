@@ -15,14 +15,17 @@ protected:
 
 	FName m_weaponname;
 
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UStaticMeshComponent* mesh_weapon;
+
 public:
 
 	AWeapons();
 	AWeapons(FName weaponname);
 
-	virtual AWeapons* GetWeapon();
+	virtual AWeapons* GetWeapon(class ACharacter*& nohref);
 
-	virtual void Unsheath();
+	virtual void Unsheath(class ACharacter*& nohref);
 
-	virtual void Sheath();
+	virtual void Sheath(class ACharacter*& nohref);
 };

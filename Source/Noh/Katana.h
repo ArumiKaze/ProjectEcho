@@ -37,21 +37,19 @@ private:
 	UPROPERTY()
 	UAnimMontage* nkamae_chiburinoto_moving;
 
-protected:
-
 public:
 
 	AKatana();
 
 	//---Get Katana---//
 	UFUNCTION(BlueprintCallable)
-	virtual AWeapons* GetWeapon() override;
+	virtual AWeapons* GetWeapon(ACharacter*& nohref) override;
 
 	//---Unsheath Katana---//
 	UFUNCTION(BlueprintCallable)
-	virtual void Unsheath() override;
+	virtual void Unsheath(ACharacter*& nohref) override;
 
 	//---Sheath Katana---//
 	UFUNCTION(BlueprintCallable)
-	virtual void Sheath() override;
+	virtual void Sheath(ACharacter*& nohref) override;
 };

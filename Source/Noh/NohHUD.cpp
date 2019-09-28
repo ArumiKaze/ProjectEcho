@@ -6,12 +6,14 @@
 
 ANohHUD::ANohHUD()
 {
+	/*
 	static ConstructorHelpers::FClassFinder<UUI> WidgetAsset(TEXT("/Game/UI/BP_WeaponSwitch"));
 	if (WidgetAsset.Succeeded())
 	{
-		/** Assign the class of the loaded asset to the WigetClass variable, which is a "subclass" of UUserWidget : Which our asset class is */
+		//Assign the class of the loaded asset to the WigetClass variable, which is a "subclass" of UUserWidget : Which our asset class is
 		weaponswitchclass = WidgetAsset.Class;
 	}
+	*/
 }
 
 void ANohHUD::hud_weaponswitch(bool b_isswitching)

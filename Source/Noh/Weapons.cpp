@@ -7,17 +7,18 @@ AWeapons::AWeapons()
 AWeapons::AWeapons(FName weaponname)
 	: m_weaponname{ weaponname }
 {
+	mesh_weapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WeaponMesh"));
 }
 
-AWeapons* AWeapons::GetWeapon()
+AWeapons* AWeapons::GetWeapon(ACharacter*& nohref)
 {
 	return nullptr;
 }
 
-void AWeapons::Unsheath()
+void AWeapons::Unsheath(ACharacter*& nohref)
 {
 }
 
-void AWeapons::Sheath()
+void AWeapons::Sheath(ACharacter*& nohref)
 {
 }

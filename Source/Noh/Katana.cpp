@@ -6,6 +6,7 @@
 #include "Runtime/Engine/Classes/Components/SkeletalMeshComponent.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Runtime/Engine/Classes/Animation/AnimInstance.h"
+#include "Runtime/Engine/Classes/Components/StaticMeshComponent.h"
 
 AKatana::AKatana()
 	:AWeapons{ "katana" }
@@ -20,6 +21,7 @@ AKatana::AKatana()
 		if (KatanaBlueprint.Object) {
 			bp_katana = KatanaBlueprint.Object;
 		}
+		
 		static ConstructorHelpers::FObjectFinder<UClass> SayaBlueprint(TEXT("Class'/Game/Weapons/Katana/BP_Saya.BP_Saya_C'"));
 		if (SayaBlueprint.Object) {
 			bp_saya = SayaBlueprint.Object;
@@ -54,26 +56,27 @@ AKatana::AKatana()
 }
 
 //---Get Katana---//
-AWeapons* AKatana::GetWeapon()
+AWeapons* AKatana::GetWeapon(ACharacter*& nohref)
 {
-	ACharacter* NohReference{ UGameplayStatics::GetPlayerCharacter(GetWorld(), 0) };
 	AKatana* katana{ nullptr };
-	if (NohReference && bp_katana)
+	if (nohref && bp_katana)
 	{
 		FActorSpawnParameters spawnparams;
-		spawnparams.Owner = NohReference;
+		spawnparams.Owner = nohref;
 		katana = GetWorld()->SpawnActor<AKatana>(bp_katana, FVector{0.0f, 0.0f, 0.0f}, FRotator{ 0.0f, 0.0f, 0.0f }, spawnparams);
+		katana->mesh_weapon->SetCollisionResponseToChannel(nohref->GetMesh()->GetCollisionObjectType(), ECollisionResponse::ECR_Ignore);
+		katana->mesh_weapon->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 		AActor* saya{ GetWorld()->SpawnActor<AActor>(bp_saya, FVector{ 0.0f, 0.0f, 0.0f }, FRotator{ 0.0f, 0.0f, 0.0f }, spawnparams) };
-		katana->AttachToComponent(NohReference->GetMesh(), FAttachmentTransformRules{ EAttachmentRule::SnapToTarget, true }, "socket_pelvis");
-		saya->AttachToComponent(NohReference->GetMesh(), FAttachmentTransformRules{ EAttachmentRule::SnapToTarget, true }, "socket_pelvis");
+		katana->AttachToComponent(nohref->GetMesh(), FAttachmentTransformRules{ EAttachmentRule::SnapToTarget, true }, "socket_pelvis");
+		saya->AttachToComponent(nohref->GetMesh(), FAttachmentTransformRules{ EAttachmentRule::SnapToTarget, true }, "socket_pelvis");
 	}
 	return katana;
 }
 
 //---Unsheath Katana---//
-void AKatana::Unsheath()
+void AKatana::Unsheath(ACharacter*& nohref)
 {
-	ANohCharacter* NohReference{ Cast<ANohCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)) };
+	ANohCharacter* NohReference{ Cast<ANohCharacter>(nohref) };
 	if (NohReference)
 	{
 		katanastate = E_KATANASTATE::KS_KAMAE;
@@ -90,9 +93,9 @@ void AKatana::Unsheath()
 }
 
 //---Sheath Katana---//
-void AKatana::Sheath()
+void AKatana::Sheath(ACharacter*& nohref)
 {
-	ANohCharacter* NohReference{ Cast<ANohCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)) };
+	ANohCharacter* NohReference{ Cast<ANohCharacter>(nohref) };
 	if (NohReference)
 	{
 		switch (katanastate)

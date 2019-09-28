@@ -13,6 +13,9 @@ class ANohCharacter : public ACharacter
 
 private:
 
+	//Character Self Ref//
+	ACharacter* nohcharacterselfref;
+
 	//Character Main States//
 	E_CARDINALDIRECTION cardinaldirection;
 	E_FOOTSTEPTYPE footsteptype;
@@ -73,6 +76,10 @@ private:
 	class USpringArmComponent* CameraBoom;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))	//Follow camera, the main camera the player uses
 	class UCameraComponent* FollowCamera;
+
+	//Physical Animation Component//
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPhysicalAnimationComponent* PhysicsAnimComponent;
 
 	//Player Camera Sensitivity//
 	float verticalcontrollersensitivity;
