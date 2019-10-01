@@ -8,17 +8,28 @@ UCLASS()
 class NOH_API ANohHUD : public AHUD
 {
 	GENERATED_BODY()
+
+private:
+
+	UPROPERTY()
+	class UUI* widget_wheel;
 	
 public:
 
 	ANohHUD();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
-		TSubclassOf<class UUserWidget> weaponswitchclass;
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+	TSubclassOf<class UUserWidget> classwidget_wheel;
 
-	class UUserWidget* widget_weaponswitch;
-
-	void hud_weaponswitch(bool b_isswitching);
-	
 	virtual void BeginPlay() override;
+
+	virtual void Tick(float DeltaSeconds) override;
+
+	virtual void DrawHUD() override;
+
+	void CreateWheel();
+
+	void UpdateWheel(int index);
+
+	void HideWheel();
 };

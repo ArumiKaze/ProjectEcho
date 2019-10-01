@@ -13,8 +13,13 @@ class ANohCharacter : public ACharacter
 
 private:
 
+	int testindex{ 0 };
+
 	//Character Self Ref//
 	ACharacter* nohcharacterselfref;
+
+	//Character HUD Ref//
+	class ANohHUD* nohcharacterhudref;
 
 	//Character Main States//
 	E_CARDINALDIRECTION cardinaldirection;
@@ -330,10 +335,6 @@ private:
 
 	//FInterpTo values//
 	int currentweaponindex; //Current weapon index in character weapon array inventory
-
-	//HUD//
-	UPROPERTY()
-	class ANohHUD* hud;		//Pointer to HUD from controller in world
 
 	//Sockets//
 	UPROPERTY()

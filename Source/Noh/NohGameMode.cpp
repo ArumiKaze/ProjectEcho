@@ -13,7 +13,11 @@ ANohGameMode::ANohGameMode()
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
 
-	//HUDClass = ANohHUD::StaticClass();
+	static ConstructorHelpers::FClassFinder<AHUD> PlayerHUDBPClass(TEXT("/Game/UI/BP_NohHUD"));
+	if (PlayerHUDBPClass.Class != NULL)
+	{
+		HUDClass = PlayerHUDBPClass.Class;
+	}
 }
 
 void ANohGameMode::BeginPlay()

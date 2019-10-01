@@ -1,8 +1,7 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #include "NohHUD.h"
 #include "UI.h"
 #include "UObject/ConstructorHelpers.h"
+#include "NohCharacter.h"
 
 ANohHUD::ANohHUD()
 {
@@ -16,32 +15,74 @@ ANohHUD::ANohHUD()
 	*/
 }
 
-void ANohHUD::hud_weaponswitch(bool b_isswitching)
+void ANohHUD::BeginPlay()
+{
+	Super::BeginPlay();
+}
+
+void ANohHUD::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+}
+
+void ANohHUD::DrawHUD()
+{
+	Super::DrawHUD();
+}
+
+void ANohHUD::CreateWheel()
+{
+	if (classwidget_wheel)
+	{
+		widget_wheel = CreateWidget<UUI>(GetOwningPlayerController(), classwidget_wheel);
+		if (widget_wheel)
+		{
+			widget_wheel->AddToPlayerScreen();
+			//widget_wheel->SetKeyboardFocus();
+		}
+	}
+}
+
+void ANohHUD::UpdateWheel(int index)
+{
+	if (widget_wheel)
+	{
+		widget_wheel->UpdateWheel(index);
+	}
+}
+
+void ANohHUD::HideWheel()
+{
+	if (widget_wheel)
+	{
+		widget_wheel->HideWheel();
+	}
+}
+
+/*
+void ANohHUD::hud_weaponwheel(bool b_isswitching)
 {
 	if (b_isswitching)
 	{
-		if (weaponswitchclass != nullptr)
+		if (hud_weaponwheelclass != nullptr)
 		{
-			widget_weaponswitch = CreateWidget<UUserWidget>(GetWorld(), weaponswitchclass);
-			if (widget_weaponswitch != nullptr)
+			widget_weaponwheel = CreateWidget<UUserWidget>(GetWorld(), hud_weaponwheelclass);
+			if (widget_weaponwheel != nullptr)
 			{
-				widget_weaponswitch->AddToViewport();
-				widget_weaponswitch->SetKeyboardFocus();
+				widget_weaponwheel->AddToViewport();
+				widget_weaponwheel->SetKeyboardFocus();
 			}
 		}
 	}
 	else
 	{
-		if (weaponswitchclass != nullptr)
+		if (hud_weaponwheelclass != nullptr)
 		{
-			if (widget_weaponswitch != nullptr)
+			if (widget_weaponwheel != nullptr)
 			{
-				widget_weaponswitch->RemoveFromViewport();
+				widget_weaponwheel->RemoveFromViewport();
 			}
 		}
 	}
 }
-
-void ANohHUD::BeginPlay()
-{
-}
+*/

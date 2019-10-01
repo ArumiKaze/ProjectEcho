@@ -25,6 +25,9 @@ ANohCharacter::ANohCharacter()
 	//Character Self Ref//
 	nohcharacterselfref = this;
 
+	//Character HUD Ref//
+	nohcharacterhudref = nullptr;
+
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(30.0f, 90.0f);
 
@@ -352,7 +355,6 @@ void ANohCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput
 void ANohCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
 	
 	if (0 == UGameplayStatics::GetPlayerControllerID(Cast<APlayerController>(GetController())))
 	{
@@ -385,8 +387,6 @@ void ANohCharacter::BeginPlay()
 	//Spawn katana and saya on character
 	AKatana* katana{ NewObject<AKatana>(this, AKatana::StaticClass()) };
 	weapon_inventory.Emplace(katana->GetWeapon(nohcharacterselfref));
-
-	//hud = Cast<ANohHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
 }
 
 //---Tick---//
@@ -1677,6 +1677,16 @@ void ANohCharacter::NohUnsprint()
 //---Character Aim Skill---//
 void ANohCharacter::NohAim()
 {
+	if (nohcharacterhudref == nullptr)
+	{
+		nohcharacterhudref = Cast<ANohHUD>(Cast<APlayerController>(GetController())->GetHUD());
+	}
+
+	//Spawn attack wheel
+	nohcharacterhudref->CreateWheel();
+	testindex += 1;
+	nohcharacterhudref->UpdateWheel(testindex);
+
 	//Switch character rotation mode to looking direction if it is currently velocity direction
 	if (rotationmode == E_ROTATIONMODE::RM_VELOCITYDIRECTION)
 	{
@@ -1687,6 +1697,8 @@ void ANohCharacter::NohAim()
 }
 void ANohCharacter::NohUnaim()
 {
+	nohcharacterhudref->HideWheel();
+
 	//Character camera zooms out when not aiming
 	EventAimMode(false);
 }
