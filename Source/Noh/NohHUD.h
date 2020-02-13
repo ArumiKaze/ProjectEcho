@@ -28,7 +28,7 @@ public:
 	virtual void DrawHUD() override;
 
 	void CreateWheel();
-
+	
 	void UpdateWheel(int index);
 
 	void HideWheel();

@@ -71,14 +71,9 @@ enum class E_FOOTSTEPTYPE : uint8
 	FST_LAND
 };
 UENUM(BlueprintType)
-enum class E_ACTIVEWEAPON : uint8
-{
-	AW_NONE,
-	AW_KATANA
-};
-UENUM(BlueprintType)
 enum class E_KATANASTATE : uint8
 {
+	KS_IDLE,
 	KS_KAMAE,
 	KS_HIDARIJOUHOU,
 	KS_MIGIJOUHOU,

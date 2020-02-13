@@ -16,7 +16,7 @@ private:
 	int testindex{ 0 };
 
 	//Character Self Ref//
-	ACharacter* nohcharacterselfref;
+	ANohCharacter* nohcharacterselfref;
 
 	//Character HUD Ref//
 	class ANohHUD* nohcharacterhudref;
@@ -61,6 +61,8 @@ private:
 	//Axis Values//
 	float forwardaxisvalue;
 	float rightaxisvalue;
+	float mousexvalue;
+	float mouseyvalue;
 
 	//Timers//
 	FTimerHandle friction_timer;
@@ -68,13 +70,12 @@ private:
 	//Enemy Hit Flag//
 	bool b_enemyhit;
 
-	//Character Inventory//
-	UPROPERTY()
-	TArray<class AWeapons*> weapon_inventory;	//Weapon inventory, stores weapons in an array
-
 	//Do Once//
 	bool b_dooncesprint;
 	bool b_dooncerun;
+
+	//Character Weapon//
+	class AKatana* m_NohKatana;
 
 	//Cameras//
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))	//Camera boom, a spring arm that pulls in towards the player if there is a collision
@@ -331,14 +332,12 @@ private:
 	//---Character Weapon Un/Sheath---//
 	void Sheath_Unsheath();							//Called when Un/Sheath key is pressed, handles character un/sheathing weapon
 
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//---Character Weapon Action Direction and Magnitude---//
+	float GetWeaponDirection();						//Called to get mouse/right stick direction
+	float GetWeaponMagnitude();						//Called to get mouse/right stick magnitude
 
-	//FInterpTo values//
-	int currentweaponindex; //Current weapon index in character weapon array inventory
-
-	//Sockets//
-	UPROPERTY()
-	FName weaponsocket;		//Weapon socket, used to determine which socket on the skeleton the weapon will go
+	//---Character Attack Skill---//
+	void NohAttack();								//Called when Attack key is pressed, handles character attack
 
 protected:
 
@@ -359,8 +358,6 @@ protected:
 	E_IDLEENTRYSTATE idleentrystate;
 	UPROPERTY(BluePrintReadWrite)
 	E_ACTIVELOCOSTATE activelocostate;
-	UPROPERTY(BluePrintReadOnly)
-	E_ACTIVEWEAPON activeweapon;
 
 	//Player Aim State//
 	UPROPERTY(BluePrintReadOnly)
@@ -458,11 +455,21 @@ protected:
 	UPROPERTY(BluePrintReadOnly)
 	float ikpelvisoffset;
 
+	//Character Left Hand IK//
+	UPROPERTY(BluePrintReadOnly)
+	FTransform transformLeftHandIK;
+	UPROPERTY(BluePrintReadOnly)
+	float fabrikAlphaLeftHandIK;
+
 	//Character Sheath State//
 	UPROPERTY(BluePrintReadOnly)
 	bool b_issheathed;
 	UPROPERTY(BluePrintReadOnly)
 	bool b_issheathing;
+
+	//Katana State//
+	UPROPERTY(BluePrintReadOnly)
+	E_KATANASTATE katanastate;
 
 public:
 
@@ -482,11 +489,9 @@ public:
 	void AddCharacterRotation(FRotator p_addamountz);
 	void AnimNotifyState_Sheathing_WeaponAttachDettach();
 	void AnimNotifyState_Sheathing_End();
+	void AnimNotify_RaiseKatanaFinish();
 
-	//---Getters---//
+	//---Public Getters---//
 	bool GetIsMoving();
 	bool GetEnemyHit();
-
-	//---Setters---//
-	void SetActiveWeapon(FName weaponname);
 };

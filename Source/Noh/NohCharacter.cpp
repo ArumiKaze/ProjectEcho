@@ -15,6 +15,7 @@
 #include "Runtime/Engine/Classes/Animation/AnimInstance.h"
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 #include "Runtime/Engine/Classes/Components/AudioComponent.h"
+#include "Runtime/Engine/Classes/Components/StaticMeshComponent.h"
 #include "AnimNotifyState_Pivot.h"
 #include "NohHUD.h"
 #include "Katana.h"
@@ -43,7 +44,7 @@ ANohCharacter::ANohCharacter()
 	idleentrystate = E_IDLEENTRYSTATE::N_IDLE;
 	cardinaldirection = E_CARDINALDIRECTION::CD_NORTH;
 	footsteptype = E_FOOTSTEPTYPE::FST_STEP;
-	activeweapon = E_ACTIVEWEAPON::AW_NONE;
+	katanastate = E_KATANASTATE::KS_IDLE;
 
 	//Player Aim State//
 	b_aiming = false;
@@ -115,6 +116,8 @@ ANohCharacter::ANohCharacter()
 	//Axis Values//
 	forwardaxisvalue = 0.0f;
 	rightaxisvalue = 0.0f;
+	mousexvalue = 0.0f;
+	mouseyvalue = 0.0f;
 
 	//Do Once//
 	b_dooncesprint = false;
@@ -300,6 +303,9 @@ ANohCharacter::ANohCharacter()
 	//Character Feet Position//
 	feetposition = { 0.0f, 0.0f };
 
+	//Character Left hand IK Alpha//
+	fabrikAlphaLeftHandIK = 0.0f;
+
 	//Character Feet IK State//
 	b_shouldfootik = true;
 	ikfeettracelengthabovefeet = 50.0f;
@@ -336,17 +342,17 @@ void ANohCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput
 	PlayerInputComponent->BindAxis("MoveRight", this, &ANohCharacter::MoveRight);
 	PlayerInputComponent->BindAxis("TurnRightLeft", this, &ANohCharacter::TurnAtRate);
 	PlayerInputComponent->BindAxis("LookUpDown", this, &ANohCharacter::LookUpAtRate);
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ANohCharacter::NohJump);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ANohCharacter::NohJumpEnd);
-	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ANohCharacter::NohCrouch);
+	//PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ANohCharacter::NohJump);
+	//PlayerInputComponent->BindAction("Jump", IE_Released, this, &ANohCharacter::NohJumpEnd);
+	//PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ANohCharacter::NohCrouch);
 	PlayerInputComponent->BindAction("Run", IE_Pressed, this, &ANohCharacter::NohSprint);
 	PlayerInputComponent->BindAction("Run", IE_Released, this, &ANohCharacter::NohUnsprint);
-	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &ANohCharacter::NohAim);
-	PlayerInputComponent->BindAction("Aim", IE_Released, this, &ANohCharacter::NohUnaim);
-	PlayerInputComponent->BindAction("Sheath/Unsheath", IE_Pressed, this, &ANohCharacter::Sheath_Unsheath);
+	//PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &ANohCharacter::NohAim);
+	//PlayerInputComponent->BindAction("Aim", IE_Released, this, &ANohCharacter::NohUnaim);
+	//PlayerInputComponent->BindAction("Sheath/Unsheath", IE_Pressed, this, &ANohCharacter::Sheath_Unsheath);
 
 
-	//PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &ANohCharacter::Attack);
+	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &ANohCharacter::NohAttack);
 	//PlayerInputComponent->BindAction("WeaponSwitch", IE_Pressed, this, &ANohCharacter::WeaponSwitchHold);
 	//PlayerInputComponent->BindAction("WeaponSwitch", IE_Released, this, &ANohCharacter::WeaponSwitchHold);
 }
@@ -359,16 +365,18 @@ void ANohCharacter::BeginPlay()
 	if (0 == UGameplayStatics::GetPlayerControllerID(Cast<APlayerController>(GetController())))
 	{
 		GetMesh()->SetCollisionObjectType(ECC_GameTraceChannel1);
+		//GetMesh()->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECollisionResponse::ECR_Ignore);
 	}
 	else
 	{
 		GetMesh()->SetCollisionObjectType(ECC_GameTraceChannel2);
+		//GetMesh()->SetCollisionResponseToChannel(ECC_GameTraceChannel2, ECollisionResponse::ECR_Ignore);
 	}
 
 	//PhysicsAnimComponent->SetStrengthMultiplyer(99.0);
-	PhysicsAnimComponent->SetSkeletalMeshComponent(GetMesh());
-	PhysicsAnimComponent->ApplyPhysicalAnimationProfileBelow(FName(TEXT("spine_01")), FName(TEXT("HitReaction")), false, false);
-	GetMesh()->SetAllBodiesBelowSimulatePhysics(FName(TEXT("spine_01")), true, false);
+	//PhysicsAnimComponent->SetSkeletalMeshComponent(GetMesh());
+	//PhysicsAnimComponent->ApplyPhysicalAnimationProfileBelow(FName(TEXT("spine_01")), FName(TEXT("HitReaction")), true, true);
+	//GetMesh()->SetAllBodiesBelowSimulatePhysics(FName(TEXT("spine_01")), true, true);
 
 	//Create anim notify objects, called in anim sequences
 	animnotifystate_pivot = NewObject<UAnimNotifyState_Pivot>(this, UAnimNotifyState_Pivot::StaticClass());
@@ -385,14 +393,50 @@ void ANohCharacter::BeginPlay()
 	}
 
 	//Spawn katana and saya on character
-	AKatana* katana{ NewObject<AKatana>(this, AKatana::StaticClass()) };
-	weapon_inventory.Emplace(katana->GetWeapon(nohcharacterselfref));
+	m_NohKatana = NewObject<AKatana>(this, AKatana::StaticClass());
+	m_NohKatana = m_NohKatana->GetWeapon(nohcharacterselfref);
 }
 
 //---Tick---//
 void ANohCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	//Update katana state
+	katanastate = m_NohKatana->GetKatanaState();
+
+	//Left Hand IK//
+	if (katanastate != E_KATANASTATE::KS_IDLE)
+	{
+		fabrikAlphaLeftHandIK = UKismetMathLibrary::FInterpTo(fabrikAlphaLeftHandIK, 1.0f, DeltaTime, 10.0f);
+
+		FVector outVectorBoneSpace{ 0 };
+		FRotator outRotatorBoneSpace{ 0 };
+
+		GetMesh()->TransformToBoneSpace(TEXT("hand_r"), m_NohKatana->GetKatanaMeshRef()->GetSocketTransform(TEXT("LeftHandIKSocket"), ERelativeTransformSpace::RTS_World).GetLocation(), FRotator{ 0 }, outVectorBoneSpace, outRotatorBoneSpace);
+		transformLeftHandIK.SetLocation(outVectorBoneSpace);
+	}
+	else
+	{
+		fabrikAlphaLeftHandIK = UKismetMathLibrary::FInterpTo(fabrikAlphaLeftHandIK, 0.0f, DeltaTime, 10.0f);
+	}
+
+	//Attack Aim SKill//
+	if (GetWeaponMagnitude() > 0.0f && GetWeaponMagnitude() < 0.9f)
+	{
+		NohAim();
+	}
+	else if (GetWeaponMagnitude() > 0.9f && katanastate == E_KATANASTATE::KS_KAMAE)
+	{
+		m_NohKatana->ChooseAttackSkill(nohcharacterselfref, GetWeaponDirection());
+	}
+	else
+	{
+		NohUnaim();
+	}
+
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Magnitude : %f"), GetWeaponMagnitude()));
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Direction : %f"), GetWeaponDirection()));
 	
 	if (0 == UGameplayStatics::GetPlayerControllerID(Cast<APlayerController>(GetController())))
 	{
@@ -587,6 +631,8 @@ void ANohCharacter::Tick(float DeltaTime)
 	case E_MOVEMENTMODE::MM_RAGDOLL:
 		break;
 	}
+
+
 }
 
 //---Essential calculations that occur every tick---//
@@ -1167,12 +1213,14 @@ void ANohCharacter::MoveRight(float Value)
 void ANohCharacter::TurnAtRate(float Rate)
 {
 	//Turn the camera left or right at a set rate (horizontalcontrollersensitivity) in delta time
-	AddControllerYawInput(Rate * horizontalcontrollersensitivity * GetWorld()->GetDeltaSeconds());
+	mousexvalue = Rate;
+	AddControllerYawInput(mousexvalue * horizontalcontrollersensitivity * GetWorld()->GetDeltaSeconds());
 }
 void ANohCharacter::LookUpAtRate(float Rate)
 {
 	//Turn the camera up or down at a set rate (verticalcontrollersensitivity) in delta time
-	AddControllerPitchInput(Rate * verticalcontrollersensitivity * GetWorld()->GetDeltaSeconds());
+	mouseyvalue = Rate;
+	AddControllerPitchInput(mouseyvalue * verticalcontrollersensitivity * GetWorld()->GetDeltaSeconds());
 }
 
 //---Character Camera System---//
@@ -1580,16 +1628,21 @@ void ANohCharacter::AnimNotifyState_Sheathing_WeaponAttachDettach()
 {
 	if (!b_issheathed)
 	{
-		weapon_inventory[currentweaponindex]->AttachToComponent(GetMesh(), FAttachmentTransformRules{ EAttachmentRule::SnapToTarget, true }, "socket_righthand");
+		m_NohKatana->AttachToComponent(GetMesh(), FAttachmentTransformRules{ EAttachmentRule::SnapToTarget, true }, "socket_righthand");
 	}
 	else
 	{
-		weapon_inventory[currentweaponindex]->AttachToComponent(GetMesh(), FAttachmentTransformRules{ EAttachmentRule::SnapToTarget, true }, "socket_pelvis");
+		m_NohKatana->AttachToComponent(GetMesh(), FAttachmentTransformRules{ EAttachmentRule::SnapToTarget, true }, "socket_pelvis");
 	}
 }
 void ANohCharacter::AnimNotifyState_Sheathing_End()
 {
 	b_issheathing = false;
+}
+
+void ANohCharacter::AnimNotify_RaiseKatanaFinish()
+{
+	m_NohKatana->SetRaiseKatanaFinish(nohcharacterselfref);
 }
 
 
@@ -1677,15 +1730,10 @@ void ANohCharacter::NohUnsprint()
 //---Character Aim Skill---//
 void ANohCharacter::NohAim()
 {
-	if (nohcharacterhudref == nullptr)
+	if (katanastate == E_KATANASTATE::KS_IDLE)
 	{
-		nohcharacterhudref = Cast<ANohHUD>(Cast<APlayerController>(GetController())->GetHUD());
+		m_NohKatana->ReadySkill(true);
 	}
-
-	//Spawn attack wheel
-	nohcharacterhudref->CreateWheel();
-	testindex += 1;
-	nohcharacterhudref->UpdateWheel(testindex);
 
 	//Switch character rotation mode to looking direction if it is currently velocity direction
 	if (rotationmode == E_ROTATIONMODE::RM_VELOCITYDIRECTION)
@@ -1697,7 +1745,10 @@ void ANohCharacter::NohAim()
 }
 void ANohCharacter::NohUnaim()
 {
-	nohcharacterhudref->HideWheel();
+	if (katanastate == E_KATANASTATE::KS_KAMAE)
+	{
+		m_NohKatana->ReadySkill(false);
+	}
 
 	//Character camera zooms out when not aiming
 	EventAimMode(false);
@@ -1767,19 +1818,35 @@ void ANohCharacter::Sheath_Unsheath()
 			b_issheathing = true;
 			b_issheathed = false;
 
-			weapon_inventory[currentweaponindex]->Unsheath(nohcharacterselfref);
+			m_NohKatana->Unsheath(nohcharacterselfref);
 		}
 		else
 		{
 			b_issheathing = true;
 			b_issheathed = true;
 
-			weapon_inventory[currentweaponindex]->Sheath(nohcharacterselfref);
+			m_NohKatana->Sheath(nohcharacterselfref);
 		}
 	}
 }
 
-//---Getters---//
+//---Character Weapon Action Direction and Magnitude---//
+float ANohCharacter::GetWeaponDirection()
+{
+	return UKismetMathLibrary::Atan2(mouseyvalue, mousexvalue);
+}
+float ANohCharacter::GetWeaponMagnitude()
+{
+	return UKismetMathLibrary::Sqrt(FMath::Pow(mousexvalue, 2.0f) + FMath::Pow(mouseyvalue, 2.0f));
+}
+
+//---Character Attack---//
+void ANohCharacter::NohAttack()
+{
+
+}
+
+//---Public Getters---//
 bool ANohCharacter::GetIsMoving()
 {
 	return b_ismoving;
@@ -1787,19 +1854,6 @@ bool ANohCharacter::GetIsMoving()
 bool ANohCharacter::GetEnemyHit()
 {
 	return b_enemyhit;
-}
-
-//---Setters---//
-void ANohCharacter::SetActiveWeapon(FName weaponname)
-{
-	if (weaponname == "katana")
-	{
-		activeweapon = E_ACTIVEWEAPON::AW_KATANA;
-	}
-	else
-	{
-		activeweapon = E_ACTIVEWEAPON::AW_NONE;
-	}
 }
 
 //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Back to normal"));

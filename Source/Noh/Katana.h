@@ -1,19 +1,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Weapons.h"
+#include "GameFramework/Actor.h"
 #include "NohCharacterEnums.h"
 #include "Katana.generated.h"
 
 UCLASS()
-class NOH_API AKatana : public AWeapons
+class NOH_API AKatana : public AActor
 {
 	GENERATED_BODY()
 
 private:
-
-	//---Current Katana State---//
-	E_KATANASTATE katanastate;
 
 	//---Katana and Saya blueprints---//
 	UPROPERTY(EditAnywhere)
@@ -21,35 +18,60 @@ private:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class AActor> bp_saya;
 
+	//---Current Katana State---//
+	E_KATANASTATE m_katanastate;
+	bool b_raisingsword;
+
 	//---Animation Montages---//
 	//Unsheathing
 	UPROPERTY()
-	UAnimMontage* nbattou_idle;
+	UAnimMontage* animmontage_battou_idle;
 	UPROPERTY()
-	UAnimMontage* nbattou_moving;
+	UAnimMontage* animmontage_battou_moving;
 	//Sheathing
 	UPROPERTY()
-	UAnimMontage* nkamae_noto_idle;
+	UAnimMontage* animmontage_kamae_noto_idle;
 	UPROPERTY()
-	UAnimMontage* nkamae_noto_moving;
+	UAnimMontage* animmontage_kamae_noto_moving;
 	UPROPERTY()
-	UAnimMontage* nkamae_chiburinoto_idle;
+	UAnimMontage* animmontage_kamae_chiburinoto_idle;
 	UPROPERTY()
-	UAnimMontage* nkamae_chiburinoto_moving;
+	UAnimMontage* animmontage_kamae_chiburinoto_moving;
+	//Attacks
+	UPROPERTY()
+	UAnimMontage* animmontage_shomengiri;
+
+protected:
+
+	//---Katana Mesh---//
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	UStaticMeshComponent* mesh_weapon;
 
 public:
 
 	AKatana();
 
 	//---Get Katana---//
-	UFUNCTION(BlueprintCallable)
-	virtual AWeapons* GetWeapon(ACharacter*& nohref) override;
+	AKatana* GetWeapon(class ANohCharacter*& nohref);
+
+	//---Get Mesh---//
+	UStaticMeshComponent* GetKatanaMeshRef();
+
+	//---Get Katanta State---//
+	E_KATANASTATE GetKatanaState();
+
+	//---Set Katana State---//
+	void SetRaiseKatanaFinish(class ANohCharacter*& nohref);
 
 	//---Unsheath Katana---//
-	UFUNCTION(BlueprintCallable)
-	virtual void Unsheath(ACharacter*& nohref) override;
+	void Unsheath(class ANohCharacter*& nohref);
 
 	//---Sheath Katana---//
-	UFUNCTION(BlueprintCallable)
-	virtual void Sheath(ACharacter*& nohref) override;
+	void Sheath(class ANohCharacter*& nohref);
+
+	//---Ready Katana---//
+	void ReadySkill(bool ready);
+
+	//---Choose Attack---//
+	void ChooseAttackSkill(class ANohCharacter*& nohref, float direction);
 };
