@@ -18,9 +18,13 @@ private:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class AActor> bp_saya;
 
-	//---Current Katana State---//
+	//---Current Katana States---//
 	E_KATANASTATE m_katanastate;
-	bool b_raisingsword;
+	bool m_bKatanaRaised;
+	bool m_bCanCancelKatanaAttack;
+
+	//---Current Animation Montage Time---//
+	float m_fCurrentAnimMontageTime;
 
 	//---Animation Montages---//
 	//Unsheathing
@@ -39,7 +43,9 @@ private:
 	UAnimMontage* animmontage_kamae_chiburinoto_moving;
 	//Attacks
 	UPROPERTY()
-	UAnimMontage* animmontage_shomengiri;
+	UAnimMontage* m_amRaiseShomengiri;
+	UPROPERTY()
+	UAnimMontage* m_amLowerShomengiri;
 
 protected:
 
@@ -62,6 +68,7 @@ public:
 
 	//---Set Katana State---//
 	void SetRaiseKatanaFinish(class ANohCharacter*& nohref);
+	void SetLowerkatanaFinish(class ANohCharacter*& nohref);
 
 	//---Unsheath Katana---//
 	void Unsheath(class ANohCharacter*& nohref);
@@ -69,9 +76,12 @@ public:
 	//---Sheath Katana---//
 	void Sheath(class ANohCharacter*& nohref);
 
-	//---Ready Katana---//
-	void ReadySkill(bool ready);
+	//---Switch Katana State---//
+	void SwapSkill(class ANohCharacter*& nohref, E_KATANASTATE enumkatana);
 
 	//---Choose Attack---//
 	void ChooseAttackSkill(class ANohCharacter*& nohref, float direction);
+
+	//---Cancel Attack---//
+	void CancelAttackSkill(class ANohCharacter*& nohref);
 };

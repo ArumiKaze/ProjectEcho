@@ -470,6 +470,8 @@ protected:
 	//Katana State//
 	UPROPERTY(BluePrintReadOnly)
 	E_KATANASTATE katanastate;
+	UPROPERTY(BluePrintReadOnly)
+	float m_fKamaeAlpha;
 
 public:
 
@@ -490,6 +492,7 @@ public:
 	void AnimNotifyState_Sheathing_WeaponAttachDettach();
 	void AnimNotifyState_Sheathing_End();
 	void AnimNotify_RaiseKatanaFinish();
+	void AnimNotify_LowerKatanaFinish();
 
 	//---Public Getters---//
 	bool GetIsMoving();

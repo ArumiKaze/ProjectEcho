@@ -318,6 +318,9 @@ ANohCharacter::ANohCharacter()
 	ikrightfootoffset = FVector{ 0.0f };
 	ikpelvisoffset = 0.0f;
 
+	//Character Kamae Alpha//
+	m_fKamaeAlpha = 0.0f;
+
 	//Character Sheath State//
 	b_issheathed = true;
 	b_issheathing = false;
@@ -408,7 +411,7 @@ void ANohCharacter::Tick(float DeltaTime)
 	//Left Hand IK//
 	if (katanastate != E_KATANASTATE::KS_IDLE)
 	{
-		fabrikAlphaLeftHandIK = UKismetMathLibrary::FInterpTo(fabrikAlphaLeftHandIK, 1.0f, DeltaTime, 10.0f);
+		fabrikAlphaLeftHandIK = UKismetMathLibrary::FInterpTo(fabrikAlphaLeftHandIK, 1.0f, DeltaTime, 1.0f);
 
 		FVector outVectorBoneSpace{ 0 };
 		FRotator outRotatorBoneSpace{ 0 };
@@ -422,17 +425,22 @@ void ANohCharacter::Tick(float DeltaTime)
 	}
 
 	//Attack Aim SKill//
-	if (GetWeaponMagnitude() > 0.0f && GetWeaponMagnitude() < 0.9f)
+	if (GetWeaponMagnitude() > 0.9f)
 	{
-		NohAim();
-	}
-	else if (GetWeaponMagnitude() > 0.9f && katanastate == E_KATANASTATE::KS_KAMAE)
-	{
+		m_fKamaeAlpha = UKismetMathLibrary::FInterpTo(m_fKamaeAlpha, 0.0f, DeltaTime, 1.0f);
 		m_NohKatana->ChooseAttackSkill(nohcharacterselfref, GetWeaponDirection());
+	}
+	else if (GetWeaponMagnitude() > 0.0f)
+	{
+		m_fKamaeAlpha = UKismetMathLibrary::FInterpTo(m_fKamaeAlpha, 1.0f, DeltaTime, 1.0f);
+		NohAim();
+		m_NohKatana->SwapSkill(nohcharacterselfref, E_KATANASTATE::KS_KAMAE);
 	}
 	else
 	{
+		m_fKamaeAlpha = UKismetMathLibrary::FInterpTo(m_fKamaeAlpha, 0.0f, DeltaTime, 1.0f);
 		NohUnaim();
+		m_NohKatana->SwapSkill(nohcharacterselfref, E_KATANASTATE::KS_IDLE);
 	}
 
 	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Magnitude : %f"), GetWeaponMagnitude()));
@@ -1644,6 +1652,10 @@ void ANohCharacter::AnimNotify_RaiseKatanaFinish()
 {
 	m_NohKatana->SetRaiseKatanaFinish(nohcharacterselfref);
 }
+void ANohCharacter::AnimNotify_LowerKatanaFinish()
+{
+	m_NohKatana->SetLowerkatanaFinish(nohcharacterselfref);
+}
 
 
 //---Character Rotation Mode---//
@@ -1730,11 +1742,6 @@ void ANohCharacter::NohUnsprint()
 //---Character Aim Skill---//
 void ANohCharacter::NohAim()
 {
-	if (katanastate == E_KATANASTATE::KS_IDLE)
-	{
-		m_NohKatana->ReadySkill(true);
-	}
-
 	//Switch character rotation mode to looking direction if it is currently velocity direction
 	if (rotationmode == E_ROTATIONMODE::RM_VELOCITYDIRECTION)
 	{
@@ -1745,11 +1752,6 @@ void ANohCharacter::NohAim()
 }
 void ANohCharacter::NohUnaim()
 {
-	if (katanastate == E_KATANASTATE::KS_KAMAE)
-	{
-		m_NohKatana->ReadySkill(false);
-	}
-
 	//Character camera zooms out when not aiming
 	EventAimMode(false);
 }

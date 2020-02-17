@@ -16,9 +16,13 @@ AKatana::AKatana()
 
 	if (GetWorld())
 	{
-		//Current katana state, starts at noto
+		//Current katana state
 		m_katanastate = E_KATANASTATE::KS_IDLE;
-		b_raisingsword = false;
+		m_bKatanaRaised = false;
+		m_bCanCancelKatanaAttack = false;
+
+		//Current Animation Montage Time
+		m_fCurrentAnimMontageTime = 0.0f;
 
 		//Load Katana and Saya blueprint objects
 		static ConstructorHelpers::FObjectFinder<UClass> KatanaBlueprint(TEXT("Class'/Game/Weapons/Katana/BP_Katana.BP_Katana_C'"));
@@ -55,9 +59,14 @@ AKatana::AKatana()
 		if (ch_animmontage_nkamaechiburinotomoving.Object) {
 			animmontage_kamae_chiburinoto_moving = ch_animmontage_nkamaechiburinotomoving.Object;
 		}
-		static ConstructorHelpers::FObjectFinder<UAnimMontage> ch_animmontage_shomengiri(TEXT("/Game/MainCharacter/Animations/Combat/Katana/AM_ShomenGiri"));
-		if (ch_animmontage_shomengiri.Object) {
-			animmontage_shomengiri = ch_animmontage_shomengiri.Object;
+
+		static ConstructorHelpers::FObjectFinder<UAnimMontage> ch_animmontage_raise_shomengiri(TEXT("/Game/MainCharacter/Animations/Combat/Katana/ShomenGiri/AM_RaiseShomenGiri"));
+		if (ch_animmontage_raise_shomengiri.Object) {
+			m_amRaiseShomengiri = ch_animmontage_raise_shomengiri.Object;
+		}
+		static ConstructorHelpers::FObjectFinder<UAnimMontage> ch_animmontage_lower_shomengiri(TEXT("/Game/MainCharacter/Animations/Combat/Katana/ShomenGiri/AM_LowerShomenGiri"));
+		if (ch_animmontage_lower_shomengiri.Object) {
+			m_amLowerShomengiri = ch_animmontage_lower_shomengiri.Object;
 		}
 	}
 }
@@ -109,7 +118,9 @@ void AKatana::SetRaiseKatanaFinish(ANohCharacter*& nohref)
 		case E_KATANASTATE::KS_MIGIKESA:
 			break;
 		case E_KATANASTATE::KS_SHOMEN:
-			nohref->GetMesh()->GetAnimInstance()->Montage_Pause(animmontage_shomengiri);
+			nohref->GetMesh()->GetAnimInstance()->Montage_Pause(m_amRaiseShomengiri);
+			m_fCurrentAnimMontageTime = nohref->GetMesh()->GetAnimInstance()->Montage_GetPosition(m_amRaiseShomengiri);
+			m_bKatanaRaised = true;
 			break;
 		case E_KATANASTATE::KS_TSUKI:
 			break;
@@ -117,6 +128,32 @@ void AKatana::SetRaiseKatanaFinish(ANohCharacter*& nohref)
 	}
 }
 
+void AKatana::SetLowerkatanaFinish(ANohCharacter *& nohref)
+{
+	if (nohref)
+	{
+		switch (m_katanastate)
+		{
+		case E_KATANASTATE::KS_KAMAE:
+			break;
+		case E_KATANASTATE::KS_HIDARIJOUHOU:
+			break;
+		case E_KATANASTATE::KS_MIGIJOUHOU:
+			break;
+		case E_KATANASTATE::KS_HIDARIKESA:
+			break;
+		case E_KATANASTATE::KS_MIGIKESA:
+			break;
+		case E_KATANASTATE::KS_SHOMEN:
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Back to normal"));
+			m_katanastate = E_KATANASTATE::KS_KAMAE;
+			break;
+		case E_KATANASTATE::KS_TSUKI:
+			break;
+		}
+	}
+}
+ 
 //---Unsheath Katana---//
 void AKatana::Unsheath(ANohCharacter*& nohref)
 {
@@ -183,21 +220,58 @@ void AKatana::Sheath(ANohCharacter*& nohref)
 	}
 }
 
-void AKatana::ReadySkill(bool ready)
+void AKatana::SwapSkill(ANohCharacter*& nohref, E_KATANASTATE enumkatana)
 {
-	m_katanastate = ready ? E_KATANASTATE::KS_KAMAE : E_KATANASTATE::KS_IDLE;
+	if (enumkatana == E_KATANASTATE::KS_IDLE)
+	{
+		m_katanastate = E_KATANASTATE::KS_IDLE;
+	}
+	else if (enumkatana == E_KATANASTATE::KS_KAMAE)
+	{
+		if (m_katanastate == E_KATANASTATE::KS_IDLE)
+		{
+			m_katanastate = E_KATANASTATE::KS_KAMAE;
+		}
+		else
+		{
+			CancelAttackSkill(nohref);
+		}
+	}
 }
 
 //---Choose Attack---//
 void AKatana::ChooseAttackSkill(ANohCharacter*& nohref, float direction)
 {
-	if (nohref && !b_raisingsword)
+	if (nohref && m_katanastate == E_KATANASTATE::KS_KAMAE)
 	{
 		if (direction > -1.97f && direction < -1.18f)
 		{
 			m_katanastate = E_KATANASTATE::KS_SHOMEN;
-			nohref->GetMesh()->GetAnimInstance()->Montage_Play(animmontage_shomengiri, 1.0f, EMontagePlayReturnType::MontageLength, 0.0f, true);
+			m_bCanCancelKatanaAttack = true;
+			nohref->GetMesh()->GetAnimInstance()->Montage_Play(m_amRaiseShomengiri, 1.0f, EMontagePlayReturnType::MontageLength, 0.0f, true);
 		}
-		b_raisingsword = true;
+	}
+}
+
+//---Cancel Attack---//
+void AKatana::CancelAttackSkill(ANohCharacter *& nohref)
+{
+	if (m_bCanCancelKatanaAttack)
+	{
+		m_bCanCancelKatanaAttack = false;
+
+		switch (m_katanastate)
+		{
+		case E_KATANASTATE::KS_SHOMEN:
+			if (m_bKatanaRaised)
+			{
+				nohref->GetMesh()->GetAnimInstance()->Montage_Play(m_amLowerShomengiri, 1.0f, EMontagePlayReturnType::MontageLength, m_fCurrentAnimMontageTime, true);
+			}
+			else
+			{
+
+			}
+			break;
+		}
 	}
 }
